@@ -1,5 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { AuthenticationPort, UsernamePasswordCredentials } from "src/domain/ports/authentication.port";
+import { Order } from "src/domain/entities";
+import { AuthenticationPort } from "src/domain/ports/authentication.port";
+import { OrderIntegrationPort } from "src/domain/ports/order-integration.port";
 
 @Injectable()
 export class OrderIntegrationService {
@@ -7,14 +9,20 @@ export class OrderIntegrationService {
 
   constructor(
     @Inject('AuthenticationPort')
-    private readonly authenticationPort: AuthenticationPort
+    private readonly authenticationPort: AuthenticationPort,
+    @Inject('OrderIntegrationPort')
+    private readonly orderIntegrationPort: OrderIntegrationPort
   ) {}
 
-  async login(credentials: UsernamePasswordCredentials) {
-    const authenticationResult = await this.authenticationPort.authenticate(credentials);
+  // async login(credentials: UsernamePasswordCredentials) {
+  //   const authenticationResult = await this.authenticationPort.authenticate(credentials);
 
-    this.logger.log(`Login realizado com sucesso para usuário: ${credentials.username}`);
+  //   this.logger.log(`Login realizado com sucesso para usuário: ${credentials.username}`);
 
-    return authenticationResult;
+  //   return authenticationResult;
+  // }
+
+  async createOrder(order: Order) {
+    const orderIntegrationResult = await this.orderIntegrationPort.createOrder(order);
   }
 }

@@ -5,7 +5,7 @@ import { AxiosResponse } from "axios";
 import * as jwt from 'jsonwebtoken';
 import { firstValueFrom } from "rxjs";
 import { AuthenticationPort, AuthenticationResult, UsernamePasswordCredentials } from "src/domain/ports/authentication.port";
-import { BahnConfig } from "./bahn.config";
+import { BahnConfig } from "./config/bahn.config";
 import { BahnLoginResponseDto } from "./dtos/bahn-login-response.dto";
 import { BahnAuthException } from "./exceptions/bahn-auth.exception";
 
@@ -67,6 +67,7 @@ export class BahnAuthAdapter implements AuthenticationPort {
   validateToken(token: string): boolean {
     try {
       if (!token) {
+        this.logger.error('Token não informado');
         return false;
       }
 
@@ -90,21 +91,6 @@ export class BahnAuthAdapter implements AuthenticationPort {
     } catch (error) {
       this.logger.error('Erro ao validar token:', error);
       return false;
-    }
-  }
-
-  /**
- * Extrai informações do token sem validar assinatura
- * @param token Token JWT
- * @returns Dados decodificados do token ou null se inválido
- */
-  decodeToken(token: string): any | null {
-    try {
-      const cleanToken = token.replace(/^Bearer\s+/i, '');
-      return jwt.decode(cleanToken);
-    } catch (error) {
-      this.logger.error('Erro ao decodificar token:', error.message);
-      return null;
     }
   }
 

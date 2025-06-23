@@ -7,9 +7,11 @@ export class OrdersController {
   
   @Post()
   async createOrder(@Body() body: any) {
-    const result = await this.orderIntegrationService.login({password: '$C@ffein&', username: 'caffeinearmyapi'})
-    console.log(result)
+    // const result = await this.orderIntegrationService.login({password: '$C@ffein&', username: 'caffeinearmyapi'})
+    // console.log(result)
     // const order = OrderMapper.toDomain(body)
     // return body;
+
+    await this.orderIntegrationService.createOrder(body)
   }
 }
