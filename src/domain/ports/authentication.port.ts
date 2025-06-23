@@ -9,5 +9,5 @@ export interface AuthenticationResult {
 
 export interface AuthenticationPort {
   authenticate(credentials: UsernamePasswordCredentials): Promise<AuthenticationResult>;
-  validateToken(token: string): Promise<boolean>;
+  validateToken(token: string): boolean;
 }

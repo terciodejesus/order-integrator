@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ApplicationModule } from './application/application.module';
 import { InfraModule } from './infra/infra.module';
 
 @Module({
@@ -9,7 +8,7 @@ import { InfraModule } from './infra/infra.module';
       isGlobal: true,
     }),
     InfraModule,
-    ApplicationModule
+    // ApplicationModule
   ],
   controllers: [],
   providers: [],
