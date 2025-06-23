@@ -1,12 +1,15 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { CreateOrderRequestDto } from "../dtos/create-order-request.dto";
-import { OrderMapper } from "../mappers/order.mapper";
+import { OrderIntegrationService } from "src/application/services/order-integration.service";
 
 @Controller('orders')
 export class OrdersController {
+  constructor(private readonly orderIntegrationService: OrderIntegrationService) {}
+  
   @Post()
-  createOrder(@Body() body: CreateOrderRequestDto) {
-    const order = OrderMapper.toDomain(body)
-    return body;
+  async createOrder(@Body() body: any) {
+    const result = await this.orderIntegrationService.login({password: '$C@ffein&', username: 'caffeinearmyapi'})
+    console.log(result)
+    // const order = OrderMapper.toDomain(body)
+    // return body;
   }
 }

@@ -1,9 +1,17 @@
 import { Module } from '@nestjs/common';
-import { OrdersController } from './infra/http/controllers/orders.controller';
+import { ConfigModule } from '@nestjs/config';
+import { ApplicationModule } from './application/application.module';
+import { InfraModule } from './infra/infra.module';
 
 @Module({
-  imports: [],
-  controllers: [OrdersController],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    InfraModule,
+    ApplicationModule
+  ],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}
