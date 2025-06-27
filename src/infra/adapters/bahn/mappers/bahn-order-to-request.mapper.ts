@@ -68,7 +68,7 @@ export class BahnOrderToRequestMapper {
       couponCode: order.payment.couponCode ?? '',
       couponDescription: order.payment.couponDescription ?? '',
       creditCardBrand: order.payment.brand ?? '',
-      currency: '',
+      currency: 'R$',
       dueDate: order.payment.dueDate ?? '',
       discount: order.payment.discount ?? 0,
       installments: order.payment.installments ?? 1,
