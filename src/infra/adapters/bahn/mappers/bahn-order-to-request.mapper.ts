@@ -73,7 +73,7 @@ export class BahnOrderToRequestMapper {
       discount: order.payment.discount ?? 0,
       installments: order.payment.installments ?? 1,
       giftVoucher: '',
-      method: order.payment.method,
+      method: `${order.payment.method === 'credit_card' ? order.payment.brand : 'Pix'} - ${order.payment.gateway}`,
       nsu: String(order.payment.nsu),
       subTotal: order.payment.subtotal ?? 0,
       tid: order.payment.tid ?? '',

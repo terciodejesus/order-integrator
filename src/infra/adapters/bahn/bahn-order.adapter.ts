@@ -9,6 +9,7 @@ import { OrderIntegrationPort, OrderIntegrationResult } from "src/domain/ports/o
 import { BahnConfig } from "./config/bahn.config";
 import { BahnOrderResponseDto } from "./dtos/bahn-order-response.dto";
 import { BahnOrderException } from "./exceptions/bahn-order.exception";
+import { BahnOrderToRequestMapper } from "./mappers/bahn-order-to-request.mapper";
 
 @Injectable()
 export class BahnOrderAdapter implements OrderIntegrationPort {
@@ -40,108 +41,12 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
       }
 
       const formattedToken = this.formatBearerToken(this.cachedToken);
+      const bahnOrder = BahnOrderToRequestMapper.toRequest(order)
 
       const response: AxiosResponse<BahnOrderResponseDto[]> = await firstValueFrom(
         this.httpService.post(
           `${this.baseUrl}/order`,
-          [{
-            "ecommerceName": "Integrações API",
-            "channel": "",
-            "number": `PM-${new Date().getTime()}`,
-            "purchaseDate": "2025-05-07T12:15:00.248Z",
-            "sellerName": "",
-            "brandName": "",
-            "status": "Approved",
-            "warehouseCode": "04",
-            "additionalFields": "",
-            "orderAdditionalFields": {
-              "U_Tag": "10"
-            },
-            "customerAdditionalFields": {
-              "additionalProp1": "",
-              "additionalProp2": "",
-              "additionalProp3": ""
-            },
-            "shipping": {
-              "method": "Total Express",
-              "price": 0,
-              "quotedPrice": 0,
-              "dueDate": "2025-05-07T12:15:00.248Z",
-              "address": {
-                "ibgeCode": "",
-                "name": "Tércio Souza de Jesus",
-                "street": "Rua Arquimedes Gonçalves",
-                "number": "580",
-                "complement": "AP 51",
-                "district": "Nazaré",
-                "city": "Salvador",
-                "country": "BR",
-                "uf": "BA",
-                "zipCode": "40050300",
-                "phone": "71993060538",
-                "mobile": "",
-                "taxIdentification": "05149935530",
-                "addressType": ""
-              }
-            },
-            "payment": {
-              "method": "Vindi",
-              "total": 209.8,
-              "discount": 0,
-              "additional": 0,
-              "installments": 1,
-              "dueDate": "2025-05-07T12:15:00.248Z",
-              "currency": "",
-              "transactionCode": "",
-              "address": {
-                "ibgeCode": "",
-                "name": "Tércio Souza de Jesus",
-                "street": "Rua Arquimedes Gonçalves",
-                "number": "580",
-                "complement": "AP 51",
-                "district": "Nazaré",
-                "city": "Salvador",
-                "country": "BR",
-                "uf": "BA",
-                "zipCode": "40050300",
-                "phone": "71993060538",
-                "mobile": "",
-                "taxIdentification": "05149935530",
-                "addressType": ""
-              },
-              "tid": "",
-              "creditCardBrand": "",
-              "nsu": "",
-              "couponCode": "",
-              "couponDescription": "",
-              "giftVoucher": "",
-              "subTotal": 209.8
-            },
-            "customer": {
-              "name": "Tércio Souza de Jesus",
-              "email": "terciodejesus@gmail.com",
-              "taxIdentification": "05149935530",
-              "phoneNumber": "71993060538",
-              "additionalFields": ""
-            },
-            "products": [
-              {
-                "discount": 0,
-                "price": 209.8,
-                "quantity": 1,
-                "sku": "SC3038001",
-                "name": "SuperCoffee Choconilla 220g"
-              },
-              {
-                "discount": 0,
-                "price": 209.8,
-                "quantity": 1,
-                "sku": "SC3038001",
-                "name": "SuperCoffee Choconilla 220g",
-                "UsageType": 6
-              }
-            ]
-          }],
+          [bahnOrder],
           {
             headers: {
               'Content-Type': 'application/json',
@@ -151,8 +56,6 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
           }
         )
       );
-
-      this.logger.log(response.data);
 
       this.logger.log(`Pedido criado com sucesso`);
       
