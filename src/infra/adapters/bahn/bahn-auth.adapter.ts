@@ -1,7 +1,11 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import * as jwt from 'jsonwebtoken';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -54,28 +58,32 @@ export class BahnAuthAdapter implements AuthenticationPort {
         accessToken: response.data.token,
       };
     } catch (error) {
-      this.logger.error(
-        `Erro no login para usuário ${credentials.username}:`,
-        error.response?.data || error.message,
-      );
+      if (error instanceof AxiosError) {
+        this.logger.error(
+          `Erro no login para usuário ${credentials.username}:`,
+          error.response?.data || error.message,
+        );
 
-      if (error.response?.status === 401) {
-        throw new BahnAuthException('Credenciais inválidas');
-      }
+        if (error.response?.status === 401) {
+          throw new BahnAuthException('Credenciais inválidas');
+        }
 
-      if (error.response?.status === 429) {
+        if (error.response?.status === 429) {
+          throw new BahnAuthException(
+            'Muitas tentativas de login. Tente novamente mais tarde',
+          );
+        }
+
+        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+          throw new BahnAuthException('Serviço Bahn indisponível');
+        }
+
         throw new BahnAuthException(
-          'Muitas tentativas de login. Tente novamente mais tarde',
+          `Erro inesperado no login: ${error.response?.data || error.message}`,
         );
       }
 
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-        throw new BahnAuthException('Serviço Bahn indisponível');
-      }
-
-      throw new BahnAuthException(
-        `Erro inesperado no login: ${error.response?.data?.message || error.message}`,
-      );
+      throw new InternalServerErrorException('Erro interno do servidor');
     }
   }
 
@@ -87,7 +95,7 @@ export class BahnAuthAdapter implements AuthenticationPort {
       }
 
       const cleanToken = token.replace('Bearer ', '');
-      const decodedToken = jwt.decode(cleanToken) as any;
+      const decodedToken = jwt.decode(cleanToken) as jwt.JwtPayload;
 
       if (!decodedToken || !decodedToken.exp) {
         this.logger.error('Token inválido ou expirado');

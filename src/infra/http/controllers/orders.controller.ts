@@ -16,7 +16,7 @@ export class OrdersController {
       return {
         status: 'success',
         message: result.message,
-      }
+      };
     } else {
       throw new BadRequestException(result.message);
     }
