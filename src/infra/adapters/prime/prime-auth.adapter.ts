@@ -43,13 +43,4 @@ export class PrimeAuthAdapter implements StoreAuthenticationPort {
   validateToken(apiKey: string): boolean {
     return this.primeConfig.apiKey === apiKey;
   }
-
-  /**
-   * Formata o header de autorização para o formato x-api-key
-   * @param apiKey Api Key
-   * @returns String formatada para header x-api-key
-   */
-  formatAuthHeader(apiKey: string): string {
-    return apiKey;
-  }
 }

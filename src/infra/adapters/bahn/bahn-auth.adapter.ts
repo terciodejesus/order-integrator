@@ -116,14 +116,4 @@ export class BahnAuthAdapter implements AuthenticationPort {
       return false;
     }
   }
-
-  /**
-   * Formata token para uso em headers de autorização
-   * @param token Token JWT
-   * @returns String formatada para header Authorization
-   */
-  formatBearerToken(token: string): string {
-    const cleanToken = token.replace(/^Bearer\s+/i, '');
-    return `Bearer ${cleanToken}`;
-  }
 }
