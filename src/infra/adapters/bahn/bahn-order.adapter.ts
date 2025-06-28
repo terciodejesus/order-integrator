@@ -36,9 +36,7 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
 
   async createOrder(order: Order): Promise<OrderIntegrationResult> {
     try {
-      const isTokenValid = this.authentication.validateToken(
-        this.cachedToken,
-      );
+      const isTokenValid = this.authentication.validateToken(this.cachedToken);
 
       if (!isTokenValid) {
         this.logger.error('Token inválido, realizando login...');

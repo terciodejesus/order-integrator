@@ -12,9 +12,6 @@ export class OrderIntegrationService {
   ) {}
 
   async createOrder(order: Order) {
-    const orderIntegrationResult =
-      await this.orderIntegration.createOrder(order);
-
-    return orderIntegrationResult;
+    return await this.orderIntegration.createOrder(order);
   }
 }
