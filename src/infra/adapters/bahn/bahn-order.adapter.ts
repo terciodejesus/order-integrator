@@ -1,7 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { Order } from 'src/domain/entities';
 import { AuthenticationPort } from 'src/domain/ports/authentication.port';
@@ -26,7 +31,7 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
     @Inject('AuthenticationPort')
     private readonly authenticationPort: AuthenticationPort,
   ) {
-    this.baseUrl = this.configService.get<BahnConfig>('bahn')?.baseUrl!;
+    this.baseUrl = this.configService.get<BahnConfig>('bahn')?.baseUrl ?? '';
   }
 
   async createOrder(order: Order): Promise<OrderIntegrationResult> {
@@ -38,8 +43,8 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
       if (!isTokenValid) {
         this.logger.error('Token inválido, realizando login...');
         const authResult = await this.authenticationPort.authenticate({
-          username: this.configService.get<BahnConfig>('bahn')?.username!,
-          password: this.configService.get<BahnConfig>('bahn')?.password!,
+          username: this.configService.get<BahnConfig>('bahn')?.username ?? '',
+          password: this.configService.get<BahnConfig>('bahn')?.password ?? '',
         });
 
         this.cachedToken = authResult.accessToken;
@@ -76,34 +81,38 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
         };
       }
     } catch (error) {
-      this.logger.error(
-        'Erro na criação de pedidos:',
-        error.response?.data || error.message,
-      );
+      if (error instanceof AxiosError) {
+        this.logger.error(
+          'Erro na criação de pedidos:',
+          error.response?.data || error.message,
+        );
 
-      if (error.response?.status === 401) {
-        throw new BahnOrderException('Token de autenticação inválido');
-      }
+        if (error.response?.status === 401) {
+          throw new BahnOrderException('Token de autenticação inválido');
+        }
 
-      if (error.response?.status === 400) {
+        if (error.response?.status === 400) {
+          throw new BahnOrderException(
+            `Dados do pedido inválidos: ${error.response?.data || 'Verifique os campos obrigatórios'}`,
+          );
+        }
+
+        if (error.response?.status === 422) {
+          throw new BahnOrderException(
+            `Erro de validação: ${JSON.stringify(error.response?.data || error.response?.data)}`,
+          );
+        }
+
+        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+          throw new BahnOrderException('Serviço Bahn indisponível');
+        }
+
         throw new BahnOrderException(
-          `Dados do pedido inválidos: ${error.response?.data?.message || 'Verifique os campos obrigatórios'}`,
+          `Erro inesperado na criação de pedidos: ${error.response?.data || error.message}`,
         );
       }
 
-      if (error.response?.status === 422) {
-        throw new BahnOrderException(
-          `Erro de validação: ${JSON.stringify(error.response?.data?.errors || error.response?.data)}`,
-        );
-      }
-
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-        throw new BahnOrderException('Serviço Bahn indisponível');
-      }
-
-      throw new BahnOrderException(
-        `Erro inesperado na criação de pedidos: ${error.response?.data?.message || error.message}`,
-      );
+      throw new InternalServerErrorException('Erro interno do servidor');
     }
   }
 
