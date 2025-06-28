@@ -26,11 +26,11 @@ export class BahnOrderToRequestMapper {
       warehouseCode: BahnWarehouseCode.PRIME,
       additionalFields: '',
       orderAdditionalFields: this.mapOrderAdditionalFields(order),
-      customerAdditionalFields: this.mapCustomerAdditionalFields(order),
+      customerAdditionalFields: this.mapCustomerAdditionalFields(),
       shipping: this.mapShipping(order),
       payment: this.mapPayment(order),
       customer: this.mapCustomer(order),
-      products: order.items.map(this.mapOrderItem),
+      products: order.items.map((item) => this.mapOrderItem(item)),
     };
   }
 
@@ -137,9 +137,7 @@ export class BahnOrderToRequestMapper {
   /**
    * Maps customer additional fields
    */
-  private static mapCustomerAdditionalFields(
-    order: Order,
-  ): Record<string, string> {
+  private static mapCustomerAdditionalFields(): Record<string, string> {
     return {
       GroupCode: BahnOrderGoupCode.PRIME,
     };

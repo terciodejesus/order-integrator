@@ -22,7 +22,7 @@ export class BahnOrderToDomainMapper {
         bahnOrderDto.ecommerceOrder.orderAdditionalFields.U_External_Id,
       orderNumber: bahnOrderDto.number,
       channel: bahnOrderDto.channel,
-      items: bahnOrderDto.products.map(this.mapOrderItem),
+      items: bahnOrderDto.products.map((product) => this.mapOrderItem(product)),
       shipping: this.mapShipping({
         shipping: bahnOrderDto.shipping,
         quoteId: bahnOrderDto.ecommerceOrder.orderAdditionalFields.U_Id_Cotacao,
