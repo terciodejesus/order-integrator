@@ -15,7 +15,7 @@ export class OrderIntegrationService {
 
   async createOrder(order: Order) {
     const result = await this.orderIntegration.createOrder(order);
-  
+
     try {
       if (result.status === 'success') {
         await this.store.notifyOrderSuccess(order);

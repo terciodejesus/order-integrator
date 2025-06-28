@@ -11,7 +11,11 @@ import { PrimeStoreAdapter } from './adapters/prime/prime-store.adapter';
 import { OrdersController } from './http/controllers/orders.controller';
 
 @Module({
-  imports: [HttpModule, ConfigModule.forFeature(bahnConfig), ConfigModule.forFeature(primeConfig)],
+  imports: [
+    HttpModule,
+    ConfigModule.forFeature(bahnConfig),
+    ConfigModule.forFeature(primeConfig),
+  ],
   providers: [
     OrderIntegrationService,
     {
@@ -32,6 +36,11 @@ import { OrdersController } from './http/controllers/orders.controller';
     },
   ],
   controllers: [OrdersController],
-  exports: ['AuthenticationPort', 'OrderIntegrationPort', 'StoreAuthenticationPort', 'StorePort'],
+  exports: [
+    'AuthenticationPort',
+    'OrderIntegrationPort',
+    'StoreAuthenticationPort',
+    'StorePort',
+  ],
 })
 export class InfraModule {}

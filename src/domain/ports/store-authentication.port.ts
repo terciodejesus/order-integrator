@@ -1,4 +1,3 @@
-
 export interface ApiKeyCredentials {
   apiKey: string;
 }
@@ -8,8 +7,6 @@ export interface StoreAuthenticationResult {
 }
 
 export interface StoreAuthenticationPort {
-  authenticate(
-    credentials: ApiKeyCredentials,
-  ): Promise<StoreAuthenticationResult>;
+  authenticate(credentials: ApiKeyCredentials): StoreAuthenticationResult;
   validateToken(apiKey: string): boolean;
 }

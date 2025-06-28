@@ -63,7 +63,9 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
         );
 
       if (response.data[0].success) {
-        this.logger.log(`Pedido criado com sucesso: ${response.data[0].orderNumber}`);
+        this.logger.log(
+          `Pedido criado com sucesso: ${response.data[0].orderNumber}`,
+        );
         return {
           status: 'success',
           message: 'Pedido criado com sucesso',
