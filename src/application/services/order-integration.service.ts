@@ -12,13 +12,8 @@ export class OrderIntegrationService {
   ) {}
 
   async createOrder(order: Order) {
-    this.logger.log(`Creating order ${order.orderNumber}`);
-
     const orderIntegrationResult =
       await this.orderIntegrationPort.createOrder(order);
-    this.logger.log(
-      `Order ${order.orderNumber} created with result: ${JSON.stringify(orderIntegrationResult)}`,
-    );
 
     return orderIntegrationResult;
   }
