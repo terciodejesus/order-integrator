@@ -29,20 +29,20 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     @Inject('AuthenticationPort')
-    private readonly authenticationPort: AuthenticationPort,
+    private readonly authentication: AuthenticationPort,
   ) {
     this.baseUrl = this.configService.get<BahnConfig>('bahn')?.baseUrl ?? '';
   }
 
   async createOrder(order: Order): Promise<OrderIntegrationResult> {
     try {
-      const isTokenValid = this.authenticationPort.validateToken(
+      const isTokenValid = this.authentication.validateToken(
         this.cachedToken,
       );
 
       if (!isTokenValid) {
         this.logger.error('Token inválido, realizando login...');
-        const authResult = await this.authenticationPort.authenticate({
+        const authResult = await this.authentication.authenticate({
           username: this.configService.get<BahnConfig>('bahn')?.username ?? '',
           password: this.configService.get<BahnConfig>('bahn')?.password ?? '',
         });

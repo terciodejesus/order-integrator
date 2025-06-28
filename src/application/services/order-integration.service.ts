@@ -8,12 +8,12 @@ export class OrderIntegrationService {
 
   constructor(
     @Inject('OrderIntegrationPort')
-    private readonly orderIntegrationPort: OrderIntegrationPort,
+    private readonly orderIntegration: OrderIntegrationPort,
   ) {}
 
   async createOrder(order: Order) {
     const orderIntegrationResult =
-      await this.orderIntegrationPort.createOrder(order);
+      await this.orderIntegration.createOrder(order);
 
     return orderIntegrationResult;
   }
