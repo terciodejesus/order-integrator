@@ -8,6 +8,8 @@ export interface AuthenticationResult {
 }
 
 export interface AuthenticationPort {
-  authenticate(credentials: UsernamePasswordCredentials): Promise<AuthenticationResult>;
+  authenticate(
+    credentials: UsernamePasswordCredentials,
+  ): Promise<AuthenticationResult>;
   validateToken(token: string): boolean;
 }

@@ -1,4 +1,4 @@
-import { Order } from "../entities";
+import { Order } from '../entities';
 
 export interface OrderIntegrationResult {
   status: 'success' | 'error';

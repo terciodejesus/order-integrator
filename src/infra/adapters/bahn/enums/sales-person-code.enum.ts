@@ -7,4 +7,4 @@ export enum BahnSalesPersonCode {
    * Sales person code for Prime
    */
   PRIME = '2',
-} 
+}

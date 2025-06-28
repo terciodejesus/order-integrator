@@ -7,4 +7,4 @@ export enum BahnWarehouseCode {
    * Warehouse code para a loja Prime
    */
   PRIME = '65718517982',
-} 
+}

@@ -6,7 +6,7 @@ import {
   IsNumber,
   IsObject,
   IsString,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 
 // DTO for address information (used in both shipping and payment)

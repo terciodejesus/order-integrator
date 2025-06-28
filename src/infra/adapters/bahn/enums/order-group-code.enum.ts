@@ -7,4 +7,4 @@ export enum BahnOrderGoupCode {
    * Order group code for Prime
    */
   PRIME = '168',
-} 
+}

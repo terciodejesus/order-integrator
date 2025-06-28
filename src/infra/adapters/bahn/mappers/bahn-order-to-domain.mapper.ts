@@ -1,11 +1,25 @@
-import { Address, Customer, OrderItem, Payment, Shipping } from "src/domain/entities";
-import { Order } from "src/domain/entities/Order";
-import { BahnOrderAddressDto, BahnOrderCustomerDto, BahnOrderDto, BahnOrderPaymentDto, BahnOrderProductDto, BahnOrderShippingDto } from "../dtos/bahn-order.dto";
+import {
+  Address,
+  Customer,
+  OrderItem,
+  Payment,
+  Shipping,
+} from 'src/domain/entities';
+import { Order } from 'src/domain/entities/Order';
+import {
+  BahnOrderAddressDto,
+  BahnOrderCustomerDto,
+  BahnOrderDto,
+  BahnOrderPaymentDto,
+  BahnOrderProductDto,
+  BahnOrderShippingDto,
+} from '../dtos/bahn-order.dto';
 
 export class BahnOrderToDomainMapper {
   static toDomain(bahnOrderDto: BahnOrderDto): Order {
     return {
-      externalId: bahnOrderDto.ecommerceOrder.orderAdditionalFields.U_External_Id,
+      externalId:
+        bahnOrderDto.ecommerceOrder.orderAdditionalFields.U_External_Id,
       orderNumber: bahnOrderDto.number,
       channel: bahnOrderDto.channel,
       items: bahnOrderDto.products.map(this.mapOrderItem),
@@ -18,14 +32,16 @@ export class BahnOrderToDomainMapper {
       payment: this.mapPayment({
         address: bahnOrderDto.orderAddress[1],
         payment: bahnOrderDto.orderPayments[0],
-        paymentGatewayId: bahnOrderDto.ecommerceOrder.orderAdditionalFields.paymentGatewayId,
+        paymentGatewayId:
+          bahnOrderDto.ecommerceOrder.orderAdditionalFields.paymentGatewayId,
         brand: bahnOrderDto.brandName,
         gateway: bahnOrderDto.ecommerceOrder.orderAdditionalFields.U_Gateway,
       }),
       project: bahnOrderDto.ecommerceOrder.orderAdditionalFields.U_Project_tag,
       additionalFields: bahnOrderDto.ecommerceOrder.orderAdditionalFields,
-      customerAdditionalFields: bahnOrderDto.ecommerceOrder.customerAdditionalFields,
-    }
+      customerAdditionalFields:
+        bahnOrderDto.ecommerceOrder.customerAdditionalFields,
+    };
   }
 
   private static mapOrderItem(item: BahnOrderProductDto): OrderItem {
@@ -39,7 +55,15 @@ export class BahnOrderToDomainMapper {
     };
   }
 
-  private static mapShipping({shipping, quoteId, address}: {shipping: BahnOrderShippingDto, quoteId: string, address: BahnOrderAddressDto}): Shipping {
+  private static mapShipping({
+    shipping,
+    quoteId,
+    address,
+  }: {
+    shipping: BahnOrderShippingDto;
+    quoteId: string;
+    address: BahnOrderAddressDto;
+  }): Shipping {
     return {
       method: shipping.method,
       price: shipping.price,
@@ -74,7 +98,19 @@ export class BahnOrderToDomainMapper {
     };
   }
 
-  private static mapPayment({payment, address, paymentGatewayId, brand, gateway}: {payment: BahnOrderPaymentDto, address: BahnOrderAddressDto, paymentGatewayId: string, brand: string, gateway: string}): Payment {
+  private static mapPayment({
+    payment,
+    address,
+    paymentGatewayId,
+    brand,
+    gateway,
+  }: {
+    payment: BahnOrderPaymentDto;
+    address: BahnOrderAddressDto;
+    paymentGatewayId: string;
+    brand: string;
+    gateway: string;
+  }): Payment {
     return {
       method: payment.PaymentMethod,
       total: payment.total,

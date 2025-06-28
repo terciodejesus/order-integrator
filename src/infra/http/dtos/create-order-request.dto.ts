@@ -222,4 +222,4 @@ export class CreateOrderRequestDto {
   @IsOptional()
   @IsObject()
   customerAdditionalFields?: Record<string, string>;
-} 
+}
