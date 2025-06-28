@@ -1,0 +1,141 @@
+# Order Integrator - Cursor Rules
+
+## Contexto do Projeto
+Sistema de integração de pedidos construído em NestJS usando Arquitetura Hexagonal (Ports & Adapters) para integrar com APIs externas como Bahn.
+
+## Padrões de Código Específicos
+
+### Arquitetura
+- **SEMPRE** seguir a estrutura Hexagonal: Domain → Application → Infrastructure
+- **Ports**: Interfaces de domínio em `src/domain/ports/`
+- **Adapters**: Implementações em `src/infra/adapters/`
+- **Entities**: Modelos de domínio em `src/domain/entities/`
+- **Services**: Use cases em `src/application/services/`
+
+### Nomenclatura Específica
+- Adapters: `{System}{Function}Adapter` (ex: `BahnOrderAdapter`)
+- Ports: `{Function}Port` (ex: `OrderIntegrationPort`)
+- DTOs: `{System}{Function}{Type}Dto` (ex: `BahnOrderRequestDto`)
+- Mappers: `{From}To{To}Mapper` (ex: `BahnOrderToRequestMapper`)
+- Exceptions: `{System}{Function}Exception` (ex: `BahnOrderException`)
+
+### Padrões de Response
+- **OrderIntegrationResult**: Sempre usar este tipo para resultados de integração
+  ```typescript
+  {
+    status: 'success' | 'error';
+    message?: string;
+    statusCode?: number; // Para HTTP status codes específicos
+  }
+  ```
+
+### Token Management Pattern
+- Cache tokens em propriedades privadas da classe adapter
+- **SEMPRE** validar token antes de usar: `this.authenticationPort.validateToken()`
+- Refresh automático em caso de 401
+- Usar `formatBearerToken()` para headers
+
+### Error Handling Específico
+- **Bahn API**: Sempre processar `response.data[0]` (array response)
+- **Status Mapping**:
+  - 401 → Token inválido
+  - 400 → Dados inválidos
+  - 422 → Erro de validação
+  - 409 → Conflito (duplicate order)
+  - Timeout → Serviço indisponível
+
+### Logging Patterns
+- Usar `Logger` do NestJS com contexto da classe
+- **Success**: `this.logger.log(\`Success message with details\`)`
+- **Error**: `this.logger.error(\`Error context: \${JSON.stringify(errorData)}\`)`
+- Incluir dados relevantes para debugging
+
+### DTO Validation Rules
+- **Request DTOs**: Validação estrita com class-validator
+- **Response DTOs**: Campos opcionais baseados no contexto da API
+- **Arrays**: Usar `@ValidateNested({ each: true })` + `@Type()`
+- **Enums**: Importar de `enums/` directory
+
+### Mapper Patterns
+- Métodos estáticos: `static toRequest()`, `static toDomain()`
+- **SEMPRE** mapear todos os campos obrigatórios
+- Incluir transformações específicas do sistema (ex: códigos, formatos)
+- Validar dados antes de mapear
+
+### Configuration
+- Usar `@nestjs/config` com interfaces tipadas
+- Configurações específicas em `config/{system}.config.ts`
+- **Environment Variables**: Prefixar com nome do sistema
+- Validar configurações críticas na inicialização
+
+### Testing Preferences
+- Unit tests para cada adapter e mapper
+- Mock dependencies via interfaces (ports)
+- Test data factory patterns para DTOs complexos
+- E2E tests para fluxos completos
+
+## Integração Bahn Específica
+
+### API Behavior
+- **Request**: Sempre enviar arrays `[pedido]`
+- **Response**: Sempre arrays `[resultado]`
+- **Success**: `{"orderIndex": 0, "orderNumber": "XXX", "success": true}`
+- **Error**: `{"orderIndex": 0, "success": false, "errors": [...]}`
+
+### Field Mappings Conhecidos
+- `externalId` → Bahn `orderNumber`
+- `channel` → Bahn `ecommerce`
+- Códigos específicos nos enums (warehouse, salesPerson, etc.)
+
+### Error Handling Específico
+- "already exists" → 409 Conflict
+- Token issues → Retry login automático
+- Timeout 30s → Service unavailable
+
+## Preferências de Desenvolvimento
+
+### Status Codes HTTP
+- 201 Created para sucesso de criação
+- 409 Conflict para duplicações
+- 400 Bad Request para validação
+- 401 Unauthorized para autenticação
+- 500 Internal Server Error como fallback
+
+### Estrutura de Resposta Consistente
+```typescript
+// Success
+{
+  status: 'success',
+  message: 'Descriptive success message'
+}
+
+// Error  
+{
+  status: 'error',
+  message: 'Detailed error description'
+}
+```
+
+### Performance Considerations
+- Cache tokens para evitar logins desnecessários
+- Timeout de 30s para operações externas
+- Logs estruturados para debugging eficiente
+
+## Memory Bank Integration
+- **SEMPRE** atualizar activeContext.md após mudanças significativas
+- Documentar novos padrões em systemPatterns.md
+- Atualizar progress.md com status de desenvolvimento
+
+## Comandos Úteis
+```bash
+npm run start:dev  # Desenvolvimento
+npm run test       # Testes unitários
+npm run lint       # Verificação de código
+npm run build      # Build produção
+```
+
+## Debugging
+- Verificar logs de autenticação primeiro
+- Validar DTOs de response contra API real
+- Testar mapeamentos com dados reais
+- Monitorar timeouts e performance 
