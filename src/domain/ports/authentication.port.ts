@@ -3,13 +3,22 @@ export interface UsernamePasswordCredentials {
   password: string;
 }
 
-export interface AuthenticationResult {
-  accessToken: string;
+export interface ApiKeyCredentials {
+  apiKey: string;
 }
+
+export interface AuthenticationResult {
+  accessToken?: string;
+  apiKey?: string;
+}
+
+export type AuthenticationCredentials =
+  | UsernamePasswordCredentials
+  | ApiKeyCredentials;
 
 export interface AuthenticationPort {
   authenticate(
-    credentials: UsernamePasswordCredentials,
+    credentials: AuthenticationCredentials,
   ): Promise<AuthenticationResult>;
   validateToken(token: string): boolean;
 }

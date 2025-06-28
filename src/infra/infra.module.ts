@@ -5,10 +5,13 @@ import { OrderIntegrationService } from 'src/application/services/order-integrat
 import { BahnAuthAdapter } from './adapters/bahn/bahn-auth.adapter';
 import { BahnOrderAdapter } from './adapters/bahn/bahn-order.adapter';
 import bahnConfig from './adapters/bahn/config/bahn.config';
+import primeConfig from './adapters/prime/config/prime.config';
+import { PrimeAuthAdapter } from './adapters/prime/prime-auth.adapter';
+import { PrimeStoreAdapter } from './adapters/prime/prime-store.adapter';
 import { OrdersController } from './http/controllers/orders.controller';
 
 @Module({
-  imports: [HttpModule, ConfigModule.forFeature(bahnConfig)],
+  imports: [HttpModule, ConfigModule.forFeature(bahnConfig), ConfigModule.forFeature(primeConfig)],
   providers: [
     OrderIntegrationService,
     {
@@ -19,8 +22,16 @@ import { OrdersController } from './http/controllers/orders.controller';
       provide: 'OrderIntegrationPort',
       useClass: BahnOrderAdapter,
     },
+    {
+      provide: 'StoreAuthenticationPort',
+      useClass: PrimeAuthAdapter,
+    },
+    {
+      provide: 'StorePort',
+      useClass: PrimeStoreAdapter,
+    },
   ],
   controllers: [OrdersController],
-  exports: ['AuthenticationPort', 'OrderIntegrationPort'],
+  exports: ['AuthenticationPort', 'OrderIntegrationPort', 'StoreAuthenticationPort', 'StorePort'],
 })
 export class InfraModule {}

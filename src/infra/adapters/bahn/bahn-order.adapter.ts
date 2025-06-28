@@ -45,7 +45,7 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
           password: this.configService.get<BahnConfig>('bahn')?.password ?? '',
         });
 
-        this.cachedToken = authResult.accessToken;
+        this.cachedToken = authResult.accessToken ?? '';
       }
 
       const formattedToken = this.formatBearerToken(this.cachedToken);
@@ -63,6 +63,7 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
         );
 
       if (response.data[0].success) {
+        this.logger.log(`Pedido criado com sucesso: ${response.data[0].orderNumber}`);
         return {
           status: 'success',
           message: 'Pedido criado com sucesso',
