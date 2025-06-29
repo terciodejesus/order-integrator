@@ -8,8 +8,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
-import { Order, Webhook } from 'src/domain/entities';
+import { Order } from 'src/domain/entities';
 import { AuthenticationPort, StorePort } from 'src/domain/ports';
+import { CreateWebhookRequestDTO } from 'src/infra/http/dtos/create-webhook-request.dto';
 import { PrimeConfig } from './config/prime.config';
 import { PrimeStoreException } from './exceptions/prime-store.exception';
 
@@ -47,18 +48,12 @@ export class PrimeStoreAdapter implements StorePort {
         this.cachedApiKey = authResult.apiKey ?? '';
       }
 
-      const webhook = new Webhook({
-        type: 'order.processed',
-        data: {
-          id: order.externalId,
-          type: 'order',
-        },
-      });
+      const webhookData = this.mapOrderToWebhookDTO(order);
 
       const response = await firstValueFrom(
         this.httpService.post(
           `https://great-beard-51.webhook.cool`,
-          webhook.toJSON(),
+          webhookData,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -99,5 +94,20 @@ export class PrimeStoreAdapter implements StorePort {
    */
   formatAuthHeader(apiKey: string): string {
     return apiKey;
+  }
+
+  /**
+   * Converte um pedido para o formato de webhook
+   * @param order Pedido a ser convertido
+   * @returns WebhookDTO
+   */
+  mapOrderToWebhookDTO(order: Order): CreateWebhookRequestDTO {
+    return {
+      data: {
+        id: order.externalId,
+      },
+      timestamp: new Date().toISOString(),
+      type: 'order.processed',
+    };
   }
 }
