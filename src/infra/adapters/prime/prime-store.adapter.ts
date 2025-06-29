@@ -8,7 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
-import { Order } from 'src/domain/entities';
+import { Order, Webhook } from 'src/domain/entities';
 import { AuthenticationPort, StorePort } from 'src/domain/ports';
 import { WebhookRequestDTO } from 'src/infra/http/dtos/webhook-request.dto';
 import { PrimeConfig } from './config/prime.config';
@@ -48,12 +48,18 @@ export class PrimeStoreAdapter implements StorePort {
         this.cachedApiKey = authResult.apiKey ?? '';
       }
 
-      const webhookDto = this.mapOrderToWebhookDTO(order);
+      const webhook = new Webhook({
+        type: 'order.processed',
+        data: {
+          id: order.externalId,
+          type: 'order'
+        }
+      })
 
       const response = await firstValueFrom(
         this.httpService.post(
           `https://great-beard-51.webhook.cool`,
-          webhookDto,
+          webhook.toJSON(),
           {
             headers: {
               'Content-Type': 'application/json',
