@@ -1,99 +1,162 @@
 # Active Context - Order Integrator
 
-## Status Atual (Dezembro 2024)
-Sistema em desenvolvimento ativo com integração Bahn funcional e questões de refinamento de DTOs e status codes HTTP.
+## Status Atual do Projeto
+**Data da última atualização**: Dezembro 2024  
+**Estado**: Funcionalidades core implementadas, em fase de melhorias e testes
 
-## Trabalho Atual em Andamento
+## Funcionalidades Implementadas ✅
 
-### Problemas Identificados
-1. **DTO Mismatch**: `BahnOrderResponseDto` não corresponde ao retorno real da API
-   - API retorna: `{"orderIndex": 0, "orderNumber": "TESTE2105012", "success": true}`
-   - API erro: `{"orderIndex":0,"success":false,"errors":[...]}`
-   - DTO atual tinha campos incorretos
+### 1. API de Pedidos
+- **Endpoint**: `POST /orders`
+- **Controller**: `OrdersController`
+- **Validação**: DTO com class-validator
+- **Response**: Status de sucesso/erro padronizado
 
-2. **Status Code Management**: Necessidade de retornar status HTTP apropriados
-   - Sucesso: 201 Created
-   - Erro de duplicação: 409 Conflict  
-   - Erro de validação: 400 Bad Request
-   - Erro de autenticação: 401 Unauthorized
+### 2. Integração com Bahn
+- **Adapter**: `BahnOrderAdapter`
+- **Autenticação**: JWT com cache e renovação automática
+- **Mapeamento**: Conversão de Order domain → Bahn API format
+- **Error Handling**: Tratamento específico por código HTTP
+- **Timeout**: 30s para criação de pedidos
 
-3. **Error Response Structure**: API Bahn retorna diferentes estruturas para sucesso/erro
+### 3. Integração com Prime Store
+- **Adapter**: `PrimeStoreAdapter`
+- **Notificações**: Webhook de sucesso de pedidos
+- **Autenticação**: API Key via x-api-key header
+- **Mapeamento**: Order → Webhook format
+- **Timeout**: 10s para notificações
 
-### Decisões Técnicas Recentes
-1. **DTO Unificado**: Criar um DTO que suporte tanto sucesso quanto erro
-2. **Status Code Dinâmico**: Implementar retorno de status baseado no tipo de erro
-3. **Optional Fields**: Campos como `orderNumber` e `errors` são opcionais baseados no contexto
+### 4. Arquitetura Clean
+- **Domain Layer**: Entidades e ports definidos
+- **Application Layer**: `OrderIntegrationService` implementado
+- **Infrastructure Layer**: Adapters, controllers, configurações
 
-## Contexto de Integração Bahn
+### 5. Configuração e Logging
+- **Environment**: Configuração via @nestjs/config
+- **Logging**: Sistema estruturado com contexto por classe
+- **Error Handling**: Exceções específicas por domínio
 
-### API Behavior Observado
-- **Endpoint**: POST /order
-- **Request**: Array de pedidos `[bahnOrder]`
-- **Response**: Array de resultados com mesmo índice
-- **Success**: `{"orderIndex": 0, "orderNumber": "XXX", "success": true}`
-- **Error**: `{"orderIndex": 0, "success": false, "errors": [...]}`
+## Trabalho Em Andamento 🔄
 
-### Error Patterns Identificados
-- **Duplicate Order**: "Order XXX from ecommerce Integrações API already exists"
-- **Authentication**: Token inválido/expirado
-- **Validation**: Dados obrigatórios ausentes
+### Memory Bank Initialization
+- **Status**: Recém inicializado
+- **Arquivos**: Todos os arquivos core do memory bank criados
+- **Próximo**: Avaliar lacunas e áreas de melhoria
 
-## Próximas Decisões Necessárias
+## Áreas que Precisam de Atenção ⚠️
 
-### 1. Error Handling Strategy
-**Opções em análise:**
-- A) Retornar sempre 200 com status interno (atual)
-- B) Usar status HTTP apropriados baseados no erro
-- C) Híbrido: Success 201, errors com status específicos
+### 1. Testes
+**Status**: Implementação pendente
+- Unit tests para services e adapters
+- Integration tests para fluxos completos  
+- End-to-end tests para API
+- Coverage mínimo de 80%
 
-### 2. DTO Structure
-**Decisão tomada:** DTO unificado com campos opcionais
+### 2. Documentação da API
+**Status**: Não implementado
+- Swagger/OpenAPI documentation
+- Exemplos de request/response
+- Documentação de error codes
+
+### 3. Health Checks
+**Status**: Não implementado
+- Endpoint `/health` ou `/status`
+- Verificação de conectividade com APIs externas
+- Status de autenticação dos sistemas
+
+### 4. Monitoramento
+**Status**: Básico (apenas logs)
+- Metrics de performance
+- Alertas para falhas
+- Dashboard de operações
+
+### 5. Tratamento de Edge Cases
+**Status**: Parcial
+- Retry logic para falhas temporárias
+- Circuit breaker para sistemas indisponíveis
+- Fallback strategies
+
+## Decisões Técnicas Recentes
+
+### Arquitetura
+- ✅ **Clean Architecture**: Mantém separação clara de responsabilidades
+- ✅ **Ports & Adapters**: Facilita testing e extensibilidade
+- ✅ **Dependency Injection**: NestJS IoC container
+
+### Integrações
+- ✅ **Token Caching**: Evita autenticação desnecessária
+- ✅ **Timeout Específico**: Diferentes timeouts por operação
+- ✅ **Error Mapping**: HTTP status → domain exceptions
+
+## Próximas Ações Prioritárias
+
+### 1. Implementar Testes (Alta Prioridade)
 ```typescript
-{
-  orderIndex: number;
-  orderNumber?: string;  // só no sucesso
-  success: boolean;
-  errors?: BahnOrderErrorDto[];  // só no erro
-}
+// Unit tests para OrderIntegrationService
+// Integration tests para BahnOrderAdapter
+// E2E tests para POST /orders
 ```
 
-### 3. Logging Improvement
-**Considerações:**
-- Adicionar correlation IDs
-- Estruturar logs para melhor debugging
-- Implementar métricas de performance
-
-## Padrões Emergentes
-
-### 1. Adapter Response Processing
+### 2. Documentação da API (Média Prioridade)
 ```typescript
-// Pattern estabelecido
-const bahnResponse = response.data[0]; // Array response
-if (bahnResponse.success) {
-  // Success path
-} else {
-  // Error path com processamento de errors array
-}
+// @ApiTags, @ApiOperation, @ApiResponse decorators
+// Swagger UI endpoint
+// README com exemplos de uso
 ```
 
-### 2. Token Management
-- Cache em memória funcionando
-- Refresh automático em 401
-- Validação antes de cada request
+### 3. Health Checks (Média Prioridade)
+```typescript
+// GET /health endpoint
+// Verificação de conectividade Bahn/Prime
+// Status de autenticação
+```
 
-### 3. Mapper Patterns
-- Domain → Request: Funcional
-- Response → Domain: Em desenvolvimento
-- Error handling: Implementado
+### 4. Melhorar Error Handling (Baixa Prioridade)
+```typescript
+// Global exception filter
+// Structured error responses
+// Error codes padronizados
+```
+
+## Configuração de Desenvolvimento
+
+### Setup Local
+1. `npm install` - Instalar dependências
+2. Configurar variáveis de ambiente (.env)
+3. `npm run start:dev` - Iniciar em modo desenvolvimento
+
+### Variáveis Necessárias
+```env
+BAHN_BASE_URL=https://api.bahn.example.com
+BAHN_USERNAME=username
+BAHN_PASSWORD=password
+PRIME_BASE_URL=https://api.prime.example.com  
+PRIME_API_KEY=api_key_here
+PORT=3000
+```
+
+## Observações Importantes
+
+### Limitações Conhecidas
+- Cache de token apenas em memória (perde na reinicialização)
+- Sem persistência de dados de auditoria
+- Single instance (não clustered)
+
+### Padrões Estabelecidos
+- Todos os logs em português para facilitar suporte
+- Código e documentação técnica em inglês
+- Tipagem forte obrigatória (evitar `any`)
+- JSDoc para métodos públicos
+
+### Integração com Git
+- Branch principal: `main`
+- Arquivos do memory bank foram removidos acidentalmente
+- Necessário commit dos novos arquivos do memory bank
 
 ## Questões em Aberto
-1. Como tratar timeouts da API Bahn?
-2. Implementar retry strategy para falhas temporárias?
-3. Adicionar circuit breaker pattern?
-4. Como fazer rollback de pedidos criados parcialmente?
 
-## Métricas e Monitoring
-- **Logs estruturados**: Implementados
-- **Error tracking**: Funcional  
-- **Performance metrics**: Não implementado
-- **Health checks**: Não implementado 
+1. **Rate Limiting**: Implementar proteção contra abuso da API?
+2. **Database**: Adicionar persistência para auditoria de pedidos?
+3. **Queue System**: Necessário para alta demanda?
+4. **Docker**: Containerizar a aplicação?
+5. **CI/CD**: Pipeline de deploy automatizado? 

@@ -1,90 +1,158 @@
 # System Patterns - Order Integrator
 
 ## Arquitetura Geral
-O sistema segue uma **Arquitetura Hexagonal** (Ports & Adapters) com clara separação entre domínio, aplicação e infraestrutura.
+O sistema segue **Clean Architecture** com **Domain-Driven Design (DDD)**, organizando o código em camadas bem definidas com dependências direcionadas do exterior para o centro.
 
 ```
-Domain Layer (Core Business Logic)
-├── Entities: Order, Customer, OrderItem, Payment, Shipping, Address
-├── Ports: OrderIntegrationPort, AuthenticationPort
-└── Business Rules: Validação de domínio
-
-Application Layer (Use Cases)
-└── Services: OrderIntegrationService
-
-Infrastructure Layer (External Concerns)
-├── HTTP Controllers: OrdersController
-├── Adapters: BahnOrderAdapter, BahnAuthAdapter
-├── DTOs: Request/Response validation
-├── Mappers: Data transformation
-└── Configuration: BahnConfig
+Infra (Controllers, Adapters) → Application (Services) → Domain (Entities, Ports)
 ```
 
-## Padrões de Design Implementados
+## Estrutura de Diretórios
 
-### 1. Ports & Adapters (Hexagonal Architecture)
-- **Ports**: Interfaces de domínio (`OrderIntegrationPort`, `AuthenticationPort`)
-- **Adapters**: Implementações de infraestrutura (`BahnOrderAdapter`, `BahnAuthAdapter`)
-- **Benefício**: Permite trocar implementações sem afetar o domínio
+### Domain Layer (`src/domain/`)
+**Responsabilidade**: Regras de negócio puras, independentes de framework
+- `entities/`: Tipos e estruturas de dados do domínio
+- `ports/`: Interfaces (contratos) para comunicação externa
+
+### Application Layer (`src/application/`)
+**Responsabilidade**: Orquestração de casos de uso
+- `services/`: Serviços de aplicação que coordenam operações
+
+### Infrastructure Layer (`src/infra/`)
+**Responsabilidade**: Detalhes técnicos e integrações externas
+- `adapters/`: Implementações dos ports (Bahn, Prime)
+- `http/`: Controllers, DTOs, mappers para API REST
+- `config/`: Configurações específicas de cada integração
+
+## Padrões Implementados
+
+### 1. Ports and Adapters (Hexagonal Architecture)
+**Ports** (Domain): Interfaces que definem contratos
+- `OrderIntegrationPort`: Contrato para criação de pedidos
+- `StorePort`: Contrato para notificações
+- `AuthenticationPort`: Contrato para autenticação
+
+**Adapters** (Infrastructure): Implementações concretas
+- `BahnOrderAdapter`: Implementa `OrderIntegrationPort` para Bahn
+- `PrimeStoreAdapter`: Implementa `StorePort` para Prime
+- `BahnAuthAdapter`: Implementa `AuthenticationPort` para Bahn
 
 ### 2. Dependency Injection
-- Uso do container DI do NestJS
-- Injeção de dependências via constructor
-- Providers configurados em módulos
+NestJS gerencia dependências com decorators:
+```typescript
+@Inject('OrderIntegrationPort')
+private readonly orderIntegration: OrderIntegrationPort
+```
 
-### 3. Mapper Pattern
-- `BahnOrderToRequestMapper`: Domain → API Request
-- `BahnOrderToDomainMapper`: API Response → Domain
-- **Benefício**: Isolamento de transformações de dados
+### 3. Data Transfer Objects (DTOs)
+Validação de entrada com `class-validator`:
+- Separação entre dados de entrada e entidades de domínio
+- Validação automática via decorators
+- Transformação de tipos quando necessário
 
-### 4. DTO Pattern
-- Validação de entrada: `CreateOrderRequestDto`
-- Validação de resposta: `BahnOrderResponseDto`
-- **Benefício**: Type safety e validação automática
+### 4. Mapper Pattern
+Conversão entre diferentes representações:
+- `BahnOrderToRequestMapper`: Domain → Bahn API format
+- `BahnOrderToDomainMapper`: Bahn response → Domain format
+- `OrderMapper`: HTTP DTO → Domain entity
 
 ### 5. Exception Handling
-- Exceptions específicas: `BahnOrderException`, `BahnAuthException`
-- Tratamento centralizado de erros
-- Status codes apropriados
+Exceções específicas por contexto:
+- `BahnOrderException`: Erros específicos da integração Bahn
+- `BahnAuthException`: Erros de autenticação Bahn
+- `PrimeStoreException`: Erros da integração Prime
 
-### 6. Token Caching
-- Cache em memória do token de autenticação
-- Validação antes de uso
-- Refresh automático quando expirado
+### 6. Configuration Pattern
+Configuração externa via `@nestjs/config`:
+- Tipagem forte para configurações
+- Separação por módulo/serviço
+- Validação de configurações obrigatórias
 
-## Estrutura de Módulos
+## Convenções de Código
 
-### InfraModule
-- Importa HttpModule para comunicação externa
-- Registra adapters como providers
-- Configuração de injeção de dependências
+### Nomenclatura
+- **Classes**: PascalCase (`OrderIntegrationService`)
+- **Métodos/Variáveis**: camelCase (`createOrder`)
+- **Arquivos**: kebab-case (`order-integration.service.ts`)
+- **Constantes**: UPPERCASE (`BAHN_BASE_URL`)
 
-### Separação de Responsabilidades
-- **Controllers**: Apenas recepção/resposta HTTP
-- **Services**: Orquestração de use cases
-- **Adapters**: Comunicação com sistemas externos
-- **Mappers**: Transformação de dados
-- **DTOs**: Validação e tipagem
+### Estrutura de Métodos
+```typescript
+async methodName(param: Type): Promise<ReturnType> {
+  // Validação de entrada
+  // Lógica principal (sem linhas em branco)
+  // Tratamento de erros
+  // Retorno
+}
+```
 
-## Princípios SOLID Aplicados
+### Error Handling Pattern
+```typescript
+try {
+  // Operação principal
+  return successResult;
+} catch (error) {
+  if (error instanceof AxiosError) {
+    // Tratamento específico HTTP
+  }
+  // Fallback genérico
+  throw new InternalServerErrorException();
+}
+```
 
-### Single Responsibility
-- Cada classe tem uma única responsabilidade
-- Adapters separados para autenticação e pedidos
-- Mappers específicos para cada transformação
+## Padrões de Integração
 
-### Open/Closed
-- Fácil adição de novos adapters via interface
-- Extensível para novos sistemas de integração
+### 1. Token Caching
+Tokens JWT são cacheados e validados antes do uso:
+```typescript
+if (!this.authentication.validateToken(this.cachedToken)) {
+  const authResult = await this.authentication.authenticate(credentials);
+  this.cachedToken = authResult.accessToken;
+}
+```
 
-### Liskov Substitution
-- Adapters podem ser substituídos via interface
-- Testes podem usar mocks facilmente
+### 2. Timeout Configuration
+Timeouts específicos por tipo de operação:
+- Criação de pedidos: 30s
+- Notificações: 10s
+- Autenticação: 5s (padrão)
 
-### Interface Segregation
-- Interfaces pequenas e específicas
-- `AuthenticationPort` vs `OrderIntegrationPort`
+### 3. Structured Logging
+Logs estruturados com contexto:
+```typescript
+this.logger.log(`Criando pedido no Bahn: ${orderNumber}`);
+this.logger.error('Erro na criação:', error.response?.data);
+```
 
-### Dependency Inversion
-- Dependência de abstrações, não implementações
-- Core business logic independente de infraestrutura 
+### 4. HTTP Status Mapping
+Tratamento específico por código HTTP:
+- 401: Token inválido → Renovar autenticação
+- 400: Dados inválidos → Retornar erro específico
+- 422: Validação → Retornar detalhes de validação
+- 5xx: Erro do servidor → Retry ou fallback
+
+## Module Organization
+
+### Core Module Structure
+```typescript
+@Module({
+  imports: [ConfigModule],
+  controllers: [Controller],
+  providers: [
+    Service,
+    { provide: 'Port', useClass: Adapter },
+  ],
+  exports: [Service],
+})
+```
+
+### Configuração Global
+- `ConfigModule.forRoot({ isGlobal: true })`
+- Providers globais para ports comuns
+- Exception filters globais para tratamento uniforme
+
+## Padrões de Teste (Para Implementar)
+- **Unit Tests**: Cada service e adapter
+- **Integration Tests**: Fluxos completos end-to-end
+- **Mocking**: Test doubles para dependências externas
+- **Coverage**: Mínimo 80% de cobertura de código 

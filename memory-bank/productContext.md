@@ -1,47 +1,91 @@
 # Product Context - Order Integrator
 
-## Problema Resolvido
-O Order Integrator resolve o desafio de integração entre sistemas de e-commerce e plataformas de gestão de pedidos externas, eliminando a necessidade de integrações manuais e garantindo sincronização automatizada de dados.
+## Problema de Negócio
+As lojas online precisam integrar seus pedidos com sistemas de gestão de backoffice de forma automatizada e confiável. Atualmente, muitas integrações são manuais ou instáveis, causando:
+- Perda de pedidos
+- Atrasos no processamento
+- Falta de rastreabilidade
+- Retrabalho manual
 
-## Casos de Uso
-1. **E-commerce Multi-canal**: Unificar pedidos de diferentes canais de venda
-2. **Sincronização de ERP**: Enviar pedidos automaticamente para sistemas de gestão
-3. **Marketplace Integration**: Conectar com plataformas como Bahn, Magento, etc.
-4. **Auditoria de Pedidos**: Rastreamento completo do ciclo de vida dos pedidos
+## Solução Proposta
+Um middleware de integração que:
+1. **Centraliza** a comunicação entre diferentes sistemas
+2. **Padroniza** o formato de dados entre plataformas
+3. **Garante** a entrega e processamento dos pedidos
+4. **Monitora** e registra todas as operações
+5. **Notifica** sobre o status das integrações
 
-## Benefícios
-- **Automação**: Eliminação de processos manuais de criação de pedidos
-- **Consistência**: Padronização de dados entre sistemas diferentes
-- **Velocidade**: Processamento em tempo real de pedidos
-- **Confiabilidade**: Tratamento robusto de erros e recuperação automática
-- **Escalabilidade**: Fácil adição de novos integradores
+## Fluxo de Operação
 
-## Fluxo de Valor
+### Fluxo Principal de Pedido
 ```
-Cliente faz pedido → E-commerce → Order Integrator → Sistema Externo → Confirmação
+Prime Store → Order Integrator → Bahn System → Notificação de Sucesso → Prime Store
 ```
 
-## Experiência do Usuário
-### Para Desenvolvedores
-- API REST simples e intuitiva
-- Documentação clara de endpoints
-- Respostas padronizadas com status claros
-- Logs detalhados para debugging
+1. **Recepção**: Prime Store envia pedido via POST /orders
+2. **Validação**: Sistema valida dados obrigatórios e formato
+3. **Autenticação**: Obtém/valida token JWT do Bahn
+4. **Transformação**: Converte dados para formato do Bahn
+5. **Integração**: Envia pedido para API do Bahn
+6. **Notificação**: Informa sucesso/erro de volta para Prime Store
 
-### Para Sistemas Integrados
-- Estrutura de dados consistente
-- Tratamento gracioso de erros
-- Timeouts apropriados
-- Retry automático quando necessário
+### Casos de Erro
+- **Token expirado**: Renovação automática de autenticação
+- **Dados inválidos**: Retorno de erro detalhado
+- **Sistema indisponível**: Retry com backoff exponencial
+- **Timeout**: Tratamento específico para timeouts
 
-## Métricas de Sucesso
+## Entidades de Domínio
+
+### Order (Pedido)
+Entidade central que representa um pedido com:
+- Identificação (externalId, orderNumber)
+- Canal de origem
+- Items do pedido
+- Dados de entrega (shipping)
+- Informações do cliente
+- Dados de pagamento
+- Projeto associado
+- Campos adicionais customizáveis
+
+### Relacionamentos
+- Order 1:N OrderItem
+- Order 1:1 Customer
+- Order 1:1 Shipping
+- Order 1:1 Payment
+- Customer 1:1 Address
+
+## Requisitos Não-Funcionais
+
+### Performance
+- Processamento de pedidos em < 5s
+- Timeout de 30s para criação no Bahn
+- Timeout de 10s para notificações
+
+### Confiabilidade
+- Autenticação automática com cache de tokens
+- Logs estruturados para auditoria
+- Tratamento específico por tipo de erro HTTP
+
+### Escalabilidade
+- Arquitetura modular para novas integrações
+- Configuração externa via environment
+- Injeção de dependência para flexibilidade
+
+### Segurança
+- Validação rigorosa de entrada
+- Headers de autenticação seguros
+- Não exposição de tokens em logs
+
+## Metrics de Sucesso
 - Taxa de sucesso na criação de pedidos > 95%
-- Tempo médio de resposta < 5 segundos
-- Zero perda de dados de pedidos
-- Logs completos para auditoria
+- Tempo médio de processamento < 3s
+- Zero perda de pedidos por falhas de integração
+- Disponibilidade do serviço > 99%
 
-## Impacto no Negócio
-- Redução de 80% no tempo de processamento manual
-- Eliminação de erros de digitação/entrada manual
-- Visibilidade completa do status de pedidos
-- Capacidade de processar volume 10x maior 
+## Roadmap Futuro
+1. **Dashboard de Monitoramento**: Interface para acompanhar integrações
+2. **Novas Integrações**: Suporte a outros sistemas além do Bahn
+3. **Fila de Processamento**: Sistema de filas para alta demanda
+4. **Retry Inteligente**: Políticas avançadas de retry
+5. **Webhooks Bidirecionais**: Notificações de mudança de status 

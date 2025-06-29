@@ -1,97 +1,143 @@
 # Memory Bank - Order Integrator
 
-## Visão Geral
-Este Memory Bank contém toda a documentação viva do projeto Order Integrator. Como a memória do Cursor é resetada entre sessões, estes arquivos servem como fonte única de verdade sobre o estado, arquitetura e progresso do projeto.
+Este é o Memory Bank do projeto Order Integrator, um sistema de documentação estruturada que mantém o contexto completo do projeto entre sessões de trabalho.
 
-## Estrutura dos Arquivos
+## 📋 Visão Geral
 
-### Arquivos Core (Obrigatórios)
-1. **`projectbrief.md`** - Fundação do projeto
-   - Escopo e objetivos principais
-   - Requisitos funcionais e não funcionais
-   - Tecnologias core utilizadas
+O Memory Bank é essencial porque a IA (Cursor) redefine sua memória a cada sessão. Estes arquivos servem como a única fonte de verdade sobre o projeto, suas decisões técnicas, progresso atual e próximos passos.
 
-2. **`productContext.md`** - Contexto de produto
-   - Problemas resolvidos pelo sistema
-   - Casos de uso e benefícios
-   - Impacto no negócio
+## 📁 Estrutura de Arquivos
 
-3. **`systemPatterns.md`** - Arquitetura e padrões
-   - Arquitetura Hexagonal implementada
-   - Padrões de design utilizados
-   - Princípios SOLID aplicados
+### Core Files (Obrigatórios)
 
-4. **`techContext.md`** - Contexto técnico
-   - Stack tecnológico completo
-   - Configuração de ambiente
-   - Constraints e limitações
+#### 🎯 `projectbrief.md`
+**Documento fundacional** que define:
+- Objetivo principal e escopo do projeto
+- Funcionalidades core vs. fora do escopo
+- Tecnologias utilizadas
+- Critérios de sucesso
+- Padrões de qualidade
 
-5. **`activeContext.md`** - Trabalho atual
-   - Status atual do desenvolvimento
-   - Problemas em andamento
-   - Decisões técnicas recentes
+#### 🏢 `productContext.md`
+**Contexto de negócio** que explica:
+- Problema que o projeto resolve
+- Fluxo de operação completo
+- Entidades de domínio e relacionamentos
+- Requisitos não-funcionais
+- Métricas de sucesso
 
-6. **`progress.md`** - Progresso e planejamento
-   - O que está funcionando
-   - Problemas conhecidos
-   - Backlog priorizado
+#### 🏗️ `systemPatterns.md`
+**Padrões arquiteturais** implementados:
+- Clean Architecture com DDD
+- Ports & Adapters pattern
+- Padrões de código e convenções
+- Estrutura de módulos NestJS
+- Tratamento de erros e integração
 
-## Como Usar
+#### 💻 `techContext.md`
+**Contexto técnico** detalhado:
+- Stack tecnológica completa
+- Configuração do ambiente
+- Scripts disponíveis
+- Integrações externas
+- Restrições e limitações
 
-### Para o Cursor AI
-- **Início de sessão**: Ler TODOS os arquivos core
-- **Durante desenvolvimento**: Consultar activeContext.md e progress.md
-- **Após mudanças**: Atualizar documentação relevante
+#### 🔄 `activeContext.md`
+**Contexto atual** de trabalho:
+- Status do projeto (última atualização)
+- Funcionalidades implementadas
+- Trabalho em andamento
+- Próximas ações prioritárias
+- Questões em aberto
+
+#### 📊 `progress.md`
+**Progresso detalhado** do projeto:
+- Funcionalidades completadas ✅
+- Parcialmente implementadas ⚠️  
+- Não implementadas ❌
+- Issues conhecidos
+- Milestones planejados
+
+## 🔄 Fluxo de Trabalho
+
+### Para a IA (Cursor)
+1. **Sempre ler** todos os arquivos do Memory Bank no início de cada sessão
+2. **Consultar** os arquivos relevantes durante o trabalho
+3. **Atualizar** os arquivos quando há mudanças significativas
+4. **Manter** a sincronização entre arquivos
 
 ### Para Desenvolvedores
-- **Onboarding**: Começar por projectbrief.md → productContext.md
-- **Desenvolvimento**: Seguir padrões em systemPatterns.md
-- **Debugging**: Consultar techContext.md e .cursorrules
+1. **Revisar** o Memory Bank antes de começar a trabalhar
+2. **Atualizar** quando implementar novas funcionalidades
+3. **Documentar** decisões técnicas importantes
+4. **Manter** o contexto atualizado para futuras sessões
 
-## Fluxo de Atualização
+## 📝 Quando Atualizar
+
+### Atualizações Obrigatórias
+- ✅ Implementação de novas funcionalidades
+- ✅ Mudanças arquiteturais significativas
+- ✅ Descoberta de novos padrões/problemas
+- ✅ Conclusão de milestones importantes
+- ✅ Comando explícito "update memory bank"
+
+### Atualizações Recomendadas
+- 📝 Decisões técnicas importantes
+- 📝 Mudanças de escopo ou requisitos
+- 📝 Descoberta de limitações/bugs críticos
+- 📝 Mudanças no roadmap do projeto
+
+## 🎯 Hierarquia de Arquivos
 
 ```mermaid
-graph TD
-    A[Mudança no Código] --> B{Tipo de Mudança}
+flowchart TD
+    PB[projectbrief.md] --> PC[productContext.md]
+    PB --> SP[systemPatterns.md]
+    PB --> TC[techContext.md]
     
-    B -->|Nova Feature| C[Atualizar progress.md]
-    B -->|Bug Fix| D[Atualizar activeContext.md]
-    B -->|Arquitetura| E[Atualizar systemPatterns.md]
-    B -->|Configuração| F[Atualizar techContext.md]
+    PC --> AC[activeContext.md]
+    SP --> AC
+    TC --> AC
     
-    C --> G[Revisar outros arquivos]
-    D --> G
-    E --> G
-    F --> G
-    
-    G --> H[Atualizar .cursorrules se necessário]
+    AC --> P[progress.md]
 ```
 
-## Manutenção
+**Legenda:**
+- `projectbrief.md`: Base de tudo, define escopo e direção
+- Arquivos de contexto: Detalham aspectos específicos
+- `activeContext.md`: Consolida o estado atual
+- `progress.md`: Rastreia execução detalhada
 
-### Quando Atualizar
-- ✅ **Sempre**: Após implementar funcionalidades
-- ✅ **Sempre**: Ao resolver problemas conhecidos
-- ✅ **Sempre**: Quando padrões evoluem
-- ✅ **Semanalmente**: Review geral de todos os arquivos
+## ⚡ Quick Reference
 
-### Sinais de Desatualização
-- ❌ Código não segue padrões documentados
-- ❌ Problemas "conhecidos" já foram resolvidos
-- ❌ Tecnologias mudaram mas documentação não
-- ❌ Novos padrões emergiram não documentados
+### 🚀 Começando Nova Sessão
+1. Ler `activeContext.md` primeiro (contexto atual)
+2. Consultar `progress.md` para status detalhado  
+3. Revisar `systemPatterns.md` para padrões técnicos
+4. Usar outros arquivos conforme necessário
 
-## Integração com .cursorrules
-O arquivo `.cursorrules` complementa este Memory Bank com:
-- Padrões de código específicos do projeto
-- Preferências de desenvolvimento
-- Comandos e debugging tips
-- Inteligência específica da integração Bahn
+### 🔍 Procurando Informações
+- **Arquitetura**: `systemPatterns.md`
+- **Tecnologias**: `techContext.md`
+- **Negócio**: `productContext.md`
+- **Status atual**: `activeContext.md`
+- **Progresso**: `progress.md`
 
-## Status Atual
-✅ **Memory Bank Inicializado**: Dezembro 2024  
-📍 **Foco Atual**: Correção de DTOs e implementação de status codes HTTP  
-🎯 **Próximo Marco**: Taxa de sucesso > 95% na integração Bahn
+### 📋 Planejando Trabalho
+- **Próximas tarefas**: `activeContext.md` → "Próximas Ações"
+- **Milestones**: `progress.md` → "Próximos Milestones"
+- **Padrões a seguir**: `systemPatterns.md`
+
+## 🛠️ Integração com .cursorrules
+
+O arquivo `.cursorrules` complementa o Memory Bank com:
+- Padrões específicos de código
+- Convenções de nomenclatura
+- Armadilhas a evitar
+- Configurações específicas do projeto
+
+**Uso conjunto**: Memory Bank fornece contexto, .cursorrules fornece regras de implementação.
 
 ---
-*Última atualização: Dezembro 2024 - Inicialização do Memory Bank* 
+
+**Importante**: Este Memory Bank é mantido manualmente e deve ser atualizado regularmente para manter sua eficácia. É o ponto central de conhecimento do projeto Order Integrator. 

@@ -1,141 +1,172 @@
 # Order Integrator - Cursor Rules
 
-## Contexto do Projeto
-Sistema de integração de pedidos construído em NestJS usando Arquitetura Hexagonal (Ports & Adapters) para integrar com APIs externas como Bahn.
+## Project Context
+Order Integrator é um sistema de integração de pedidos em NestJS que conecta a Prime Store com o sistema Bahn usando Clean Architecture e Domain-Driven Design. Sistema critical de produção que processa pedidos automaticamente entre plataformas.
 
-## Padrões de Código Específicos
+## Architecture Patterns
+- **Clean Architecture**: Domain (entities, ports) → Application (services) → Infrastructure (adapters, controllers)
+- **Ports & Adapters**: OrderIntegrationPort, StorePort, AuthenticationPort com implementações específicas
+- **Dependency Injection**: NestJS IoC com @Inject decorators para ports
+- **Configuration**: @nestjs/config com tipagem forte e configuração por módulo
 
-### Arquitetura
-- **SEMPRE** seguir a estrutura Hexagonal: Domain → Application → Infrastructure
-- **Ports**: Interfaces de domínio em `src/domain/ports/`
-- **Adapters**: Implementações em `src/infra/adapters/`
-- **Entities**: Modelos de domínio em `src/domain/entities/`
-- **Services**: Use cases em `src/application/services/`
+## Code Standards
 
-### Nomenclatura Específica
-- Adapters: `{System}{Function}Adapter` (ex: `BahnOrderAdapter`)
-- Ports: `{Function}Port` (ex: `OrderIntegrationPort`)
-- DTOs: `{System}{Function}{Type}Dto` (ex: `BahnOrderRequestDto`)
-- Mappers: `{From}To{To}Mapper` (ex: `BahnOrderToRequestMapper`)
-- Exceptions: `{System}{Function}Exception` (ex: `BahnOrderException`)
+### Naming Conventions
+- Classes: PascalCase (`OrderIntegrationService`, `BahnOrderAdapter`)
+- Methods/Variables: camelCase (`createOrder`, `cachedToken`)
+- Files: kebab-case (`order-integration.service.ts`, `bahn-auth.adapter.ts`)
+- Constants: UPPERCASE (`BAHN_BASE_URL`)
+- Interfaces/Ports: PascalCase ending with Port (`OrderIntegrationPort`)
 
-### Padrões de Response
-- **OrderIntegrationResult**: Sempre usar este tipo para resultados de integração
-  ```typescript
-  {
-    status: 'success' | 'error';
-    message?: string;
-    statusCode?: number; // Para HTTP status codes específicos
-  }
-  ```
+### File Organization
+```
+src/
+├── domain/           # Business entities and contracts
+│   ├── entities/     # Order, Customer, OrderItem, etc.
+│   └── ports/        # Interfaces for external dependencies
+├── application/      # Use cases and business logic
+│   └── services/     # Application services (orchestration)
+└── infra/           # External concerns
+    ├── adapters/     # Port implementations (bahn/, prime/)
+    └── http/         # Controllers, DTOs, mappers
+```
 
-### Token Management Pattern
-- Cache tokens em propriedades privadas da classe adapter
-- **SEMPRE** validar token antes de usar: `this.authenticationPort.validateToken()`
-- Refresh automático em caso de 401
-- Usar `formatBearerToken()` para headers
+### TypeScript Rules
+- NEVER use `any` - always type everything
+- Use strict mode TypeScript configuration
+- Prefer interfaces for contracts, types for data structures
+- Use JSDoc for public methods
+- Import types with `import type` when possible
 
-### Error Handling Específico
-- **Bahn API**: Sempre processar `response.data[0]` (array response)
-- **Status Mapping**:
-  - 401 → Token inválido
-  - 400 → Dados inválidos
-  - 422 → Erro de validação
-  - 409 → Conflito (duplicate order)
-  - Timeout → Serviço indisponível
-
-### Logging Patterns
-- Usar `Logger` do NestJS com contexto da classe
-- **Success**: `this.logger.log(\`Success message with details\`)`
-- **Error**: `this.logger.error(\`Error context: \${JSON.stringify(errorData)}\`)`
-- Incluir dados relevantes para debugging
-
-### DTO Validation Rules
-- **Request DTOs**: Validação estrita com class-validator
-- **Response DTOs**: Campos opcionais baseados no contexto da API
-- **Arrays**: Usar `@ValidateNested({ each: true })` + `@Type()`
-- **Enums**: Importar de `enums/` directory
-
-### Mapper Patterns
-- Métodos estáticos: `static toRequest()`, `static toDomain()`
-- **SEMPRE** mapear todos os campos obrigatórios
-- Incluir transformações específicas do sistema (ex: códigos, formatos)
-- Validar dados antes de mapear
-
-### Configuration
-- Usar `@nestjs/config` com interfaces tipadas
-- Configurações específicas em `config/{system}.config.ts`
-- **Environment Variables**: Prefixar com nome do sistema
-- Validar configurações críticas na inicialização
-
-### Testing Preferences
-- Unit tests para cada adapter e mapper
-- Mock dependencies via interfaces (ports)
-- Test data factory patterns para DTOs complexos
-- E2E tests para fluxos completos
-
-## Integração Bahn Específica
-
-### API Behavior
-- **Request**: Sempre enviar arrays `[pedido]`
-- **Response**: Sempre arrays `[resultado]`
-- **Success**: `{"orderIndex": 0, "orderNumber": "XXX", "success": true}`
-- **Error**: `{"orderIndex": 0, "success": false, "errors": [...]}`
-
-### Field Mappings Conhecidos
-- `externalId` → Bahn `orderNumber`
-- `channel` → Bahn `ecommerce`
-- Códigos específicos nos enums (warehouse, salesPerson, etc.)
-
-### Error Handling Específico
-- "already exists" → 409 Conflict
-- Token issues → Retry login automático
-- Timeout 30s → Service unavailable
-
-## Preferências de Desenvolvimento
-
-### Status Codes HTTP
-- 201 Created para sucesso de criação
-- 409 Conflict para duplicações
-- 400 Bad Request para validação
-- 401 Unauthorized para autenticação
-- 500 Internal Server Error como fallback
-
-### Estrutura de Resposta Consistente
+### Method Structure
 ```typescript
-// Success
-{
-  status: 'success',
-  message: 'Descriptive success message'
-}
-
-// Error  
-{
-  status: 'error',
-  message: 'Detailed error description'
+async methodName(param: Type): Promise<ReturnType> {
+  // Input validation
+  // Main logic (no blank lines within)
+  // Error handling
+  // Return statement
 }
 ```
 
-### Performance Considerations
-- Cache tokens para evitar logins desnecessários
-- Timeout de 30s para operações externas
-- Logs estruturados para debugging eficiente
+## Integration Patterns
+
+### Authentication Caching
+```typescript
+// Always check token validity before API calls
+if (!this.authentication.validateToken(this.cachedToken)) {
+  const authResult = await this.authentication.authenticate(credentials);
+  this.cachedToken = authResult.accessToken;
+}
+```
+
+### Timeout Configuration
+- Order creation (Bahn): 30s
+- Notifications (Prime): 10s  
+- Authentication: 5s (default)
+
+### Error Handling Strategy
+```typescript
+try {
+  // Main operation
+  return successResult;
+} catch (error) {
+  if (error instanceof AxiosError) {
+    // HTTP-specific handling by status code
+    if (error.response?.status === 401) {
+      // Token renewal logic
+    }
+    // Map to domain exceptions
+  }
+  throw new InternalServerErrorException();
+}
+```
+
+### HTTP Status Code Mapping
+- 401: Token expired → Renew authentication
+- 400: Invalid data → Return validation error
+- 422: Validation failure → Return detailed errors
+- ECONNREFUSED/ETIMEDOUT: Service unavailable
+
+## Service-Specific Patterns
+
+### Bahn Integration
+- JWT Bearer tokens with automatic renewal
+- Order arrays in requests: `[bahnOrder]`
+- 30s timeout for order creation
+- Response format: `{ success: boolean, orderNumber?: string, errors?: ErrorDetail[] }`
+
+### Prime Store Integration  
+- API Key authentication via x-api-key header
+- Webhook notifications for order success
+- 10s timeout for notifications
+- Webhook format: `{ data: { id }, timestamp, type: 'order.processed' }`
+
+## Logging Standards
+- Use Portuguese for user-facing messages and logs
+- Include operation context: `Criando pedido no Bahn: ${orderNumber}`
+- Error logs should include response data: `error.response?.data`
+- Log levels: `this.logger.log()` for success, `.error()` for failures, `.warn()` for recoverable issues
+
+## Testing Approach (When Implementing)
+- Unit tests for each service and adapter
+- Mock external dependencies (HttpService, ConfigService)
+- Integration tests for complete flows
+- E2E tests for API endpoints
+- Minimum 80% coverage target
+
+## Environment Configuration
+```typescript
+// Always use typed configuration interfaces
+interface BahnConfig {
+  baseUrl: string;
+  username: string;
+  password: string;
+}
+
+// Access via ConfigService with fallbacks
+this.configService.get<BahnConfig>('bahn')?.baseUrl ?? ''
+```
+
+## Common Pitfalls to Avoid
+- Don't log sensitive data (tokens, passwords)
+- Always validate tokens before API calls
+- Don't use magic numbers - define constants
+- Don't leave blank lines within method bodies
+- Always handle specific error cases before generic ones
+- Use dependency injection instead of direct instantiation
+
+## Module Organization
+```typescript
+@Module({
+  imports: [ConfigModule, HttpModule],
+  controllers: [Controller],
+  providers: [
+    Service,
+    { provide: 'PortName', useClass: AdapterImplementation },
+  ],
+  exports: [Service],
+})
+```
+
+## Domain Entities Structure
+- Order: Central entity with externalId, orderNumber, items[], customer, shipping, payment
+- Relationships: Order 1:N OrderItem, Order 1:1 Customer/Shipping/Payment
+- Customer 1:1 Address
+- All entities are plain TypeScript types (not classes)
+
+## Current Focus Areas
+1. **Testing**: Implement comprehensive test suite
+2. **Documentation**: Add Swagger/OpenAPI docs
+3. **Health Checks**: Add system health monitoring
+4. **Error Recovery**: Implement retry logic and circuit breakers
 
 ## Memory Bank Integration
-- **SEMPRE** atualizar activeContext.md após mudanças significativas
-- Documentar novos padrões em systemPatterns.md
-- Atualizar progress.md com status de desenvolvimento
+The project uses a comprehensive Memory Bank system in `memory-bank/` directory:
+- `projectbrief.md`: Core project information
+- `productContext.md`: Business context and requirements  
+- `systemPatterns.md`: Architecture and technical patterns
+- `techContext.md`: Technology stack and setup
+- `activeContext.md`: Current work focus
+- `progress.md`: Detailed progress tracking
 
-## Comandos Úteis
-```bash
-npm run start:dev  # Desenvolvimento
-npm run test       # Testes unitários
-npm run lint       # Verificação de código
-npm run build      # Build produção
-```
-
-## Debugging
-- Verificar logs de autenticação primeiro
-- Validar DTOs de response contra API real
-- Testar mapeamentos com dados reais
-- Monitorar timeouts e performance 
+Always consult Memory Bank files when starting new work or when context is needed. 
