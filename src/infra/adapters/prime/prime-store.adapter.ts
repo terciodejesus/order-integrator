@@ -72,7 +72,9 @@ export class PrimeStoreAdapter implements StorePort {
         throw new PrimeStoreException('Erro ao notificar sucesso de pedido');
       }
 
-      this.logger.log('Notificação de sucesso de pedido enviada com sucesso');
+      this.logger.log(
+        `Notificação de sucesso de pedido enviada com sucesso: ${order.orderNumber}`,
+      );
     } catch (error) {
       if (error instanceof AxiosError) {
         this.logger.error(

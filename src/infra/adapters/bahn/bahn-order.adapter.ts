@@ -39,7 +39,6 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
       const isTokenValid = this.authentication.validateToken(this.cachedToken);
 
       if (!isTokenValid) {
-        this.logger.error('Token inválido, realizando login...');
         const authResult = await this.authentication.authenticate({
           username: this.configService.get<BahnConfig>('bahn')?.username ?? '',
           password: this.configService.get<BahnConfig>('bahn')?.password ?? '',
@@ -51,6 +50,7 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
       const formattedToken = this.formatBearerToken(this.cachedToken);
       const bahnOrder = BahnOrderToRequestMapper.toRequest(order);
 
+      this.logger.log(`Criando pedido no Bahn: ${bahnOrder.number}`);
       const response: AxiosResponse<BahnOrderResponseDTO[]> =
         await firstValueFrom(
           this.httpService.post(`${this.baseUrl}/order`, [bahnOrder], {

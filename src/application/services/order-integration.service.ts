@@ -14,6 +14,7 @@ export class OrderIntegrationService {
   ) {}
 
   async createOrder(order: Order) {
+    this.logger.log(`Recebendo pedido: ${order.orderNumber}`);
     const result = await this.orderIntegration.createOrder(order);
 
     try {

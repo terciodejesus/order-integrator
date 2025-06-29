@@ -90,7 +90,6 @@ export class BahnAuthAdapter implements AuthenticationPort {
   validateToken(token: string): boolean {
     try {
       if (!token) {
-        this.logger.error('Token não informado');
         return false;
       }
 
