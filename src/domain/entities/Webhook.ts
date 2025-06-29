@@ -12,8 +12,8 @@ export class Webhook {
   private readonly props: WebhookProps;
 
   constructor(props: WebhookProps) {
-    this._id = randomUUID()
-    this._timestamp = new Date().toISOString()
+    this._id = randomUUID();
+    this._timestamp = new Date().toISOString();
     this.props = props;
   }
 
