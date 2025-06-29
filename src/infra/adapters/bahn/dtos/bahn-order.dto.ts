@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 
 // DTO for ecommerce order additional fields
-export class BahnEcommerceOrderDto {
+export class BahnEcommerceOrderDTO {
   @IsOptional()
   @IsObject()
   orderAdditionalFields: Record<string, string>;
@@ -23,7 +23,7 @@ export class BahnEcommerceOrderDto {
 }
 
 // DTO for shipping information
-export class BahnOrderShippingDto {
+export class BahnOrderShippingDTO {
   @IsNumber()
   id: number;
 
@@ -44,7 +44,7 @@ export class BahnOrderShippingDto {
 }
 
 // DTO for payment information
-export class BahnOrderPaymentDto {
+export class BahnOrderPaymentDTO {
   @IsNumber()
   id: number;
 
@@ -103,7 +103,7 @@ export class BahnOrderPaymentDto {
 }
 
 // DTO for address information
-export class BahnOrderAddressDto {
+export class BahnOrderAddressDTO {
   @IsNumber()
   id: number;
 
@@ -159,7 +159,7 @@ export class BahnOrderAddressDto {
 }
 
 // DTO for customer information
-export class BahnOrderCustomerDto {
+export class BahnOrderCustomerDTO {
   @IsNumber()
   id: number;
 
@@ -181,7 +181,7 @@ export class BahnOrderCustomerDto {
 }
 
 // DTO for product information
-export class BahnOrderProductDto {
+export class BahnOrderProductDTO {
   @IsNumber()
   id: number;
 
@@ -209,7 +209,7 @@ export class BahnOrderProductDto {
 }
 
 // Main DTO for Bahn Order response
-export class BahnOrderDto {
+export class BahnOrderDTO {
   /** Order ID from Bahn */
   @IsNumber()
   id: number;
@@ -265,36 +265,36 @@ export class BahnOrderDto {
   /** E-commerce order additional fields */
   @IsOptional()
   @ValidateNested()
-  @Type(() => BahnEcommerceOrderDto)
-  ecommerceOrder: BahnEcommerceOrderDto;
+  @Type(() => BahnEcommerceOrderDTO)
+  ecommerceOrder: BahnEcommerceOrderDTO;
 
   /** Shipping information */
   @ValidateNested()
-  @Type(() => BahnOrderShippingDto)
-  shipping: BahnOrderShippingDto;
+  @Type(() => BahnOrderShippingDTO)
+  shipping: BahnOrderShippingDTO;
 
   /** Order payments */
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => BahnOrderPaymentDto)
-  orderPayments: BahnOrderPaymentDto[];
+  @Type(() => BahnOrderPaymentDTO)
+  orderPayments: BahnOrderPaymentDTO[];
 
   /** Order addresses */
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => BahnOrderAddressDto)
-  orderAddress: BahnOrderAddressDto[];
+  @Type(() => BahnOrderAddressDTO)
+  orderAddress: BahnOrderAddressDTO[];
 
   /** Customer information */
   @ValidateNested()
-  @Type(() => BahnOrderCustomerDto)
-  customer: BahnOrderCustomerDto;
+  @Type(() => BahnOrderCustomerDTO)
+  customer: BahnOrderCustomerDTO;
 
   /** Order products */
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => BahnOrderProductDto)
-  products: BahnOrderProductDto[];
+  @Type(() => BahnOrderProductDTO)
+  products: BahnOrderProductDTO[];
 
   /** Tenant ID */
   @IsOptional()

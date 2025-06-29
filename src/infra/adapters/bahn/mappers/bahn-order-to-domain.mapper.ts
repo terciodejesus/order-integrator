@@ -7,16 +7,16 @@ import {
 } from 'src/domain/entities';
 import { Order } from 'src/domain/entities/Order';
 import {
-  BahnOrderAddressDto,
-  BahnOrderCustomerDto,
-  BahnOrderDto,
-  BahnOrderPaymentDto,
-  BahnOrderProductDto,
-  BahnOrderShippingDto,
+  BahnOrderAddressDTO,
+  BahnOrderCustomerDTO,
+  BahnOrderDTO,
+  BahnOrderPaymentDTO,
+  BahnOrderProductDTO,
+  BahnOrderShippingDTO,
 } from '../dtos/bahn-order.dto';
 
 export class BahnOrderToDomainMapper {
-  static toDomain(bahnOrderDto: BahnOrderDto): Order {
+  static toDomain(bahnOrderDto: BahnOrderDTO): Order {
     return {
       externalId:
         bahnOrderDto.ecommerceOrder.orderAdditionalFields.U_External_Id,
@@ -44,7 +44,7 @@ export class BahnOrderToDomainMapper {
     };
   }
 
-  private static mapOrderItem(item: BahnOrderProductDto): OrderItem {
+  private static mapOrderItem(item: BahnOrderProductDTO): OrderItem {
     return {
       sku: item.sku,
       name: item.name,
@@ -60,9 +60,9 @@ export class BahnOrderToDomainMapper {
     quoteId,
     address,
   }: {
-    shipping: BahnOrderShippingDto;
+    shipping: BahnOrderShippingDTO;
     quoteId: string;
-    address: BahnOrderAddressDto;
+    address: BahnOrderAddressDTO;
   }): Shipping {
     return {
       method: shipping.method,
@@ -74,7 +74,7 @@ export class BahnOrderToDomainMapper {
     };
   }
 
-  private static mapAddress(address: BahnOrderAddressDto): Address {
+  private static mapAddress(address: BahnOrderAddressDTO): Address {
     return {
       name: address.name,
       street: address.street,
@@ -89,7 +89,7 @@ export class BahnOrderToDomainMapper {
     };
   }
 
-  private static mapCustomer(customer: BahnOrderCustomerDto): Customer {
+  private static mapCustomer(customer: BahnOrderCustomerDTO): Customer {
     return {
       name: customer.name,
       email: customer.email,
@@ -105,8 +105,8 @@ export class BahnOrderToDomainMapper {
     brand,
     gateway,
   }: {
-    payment: BahnOrderPaymentDto;
-    address: BahnOrderAddressDto;
+    payment: BahnOrderPaymentDTO;
+    address: BahnOrderAddressDTO;
     paymentGatewayId: string;
     brand: string;
     gateway: string;

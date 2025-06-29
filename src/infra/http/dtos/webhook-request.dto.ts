@@ -1,6 +1,6 @@
 import { IsISO8601, IsObject, IsString } from 'class-validator';
 
-export class WebhookRequestDto {
+export class WebhookRequestDTO {
   @IsString()
   type: string;
 

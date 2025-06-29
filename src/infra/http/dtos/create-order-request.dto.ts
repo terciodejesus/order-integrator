@@ -16,7 +16,7 @@ import {
 /**
  * Address DTO for REST API
  */
-export class CreateOrderAddressDto {
+export class CreateOrderAddressDTO {
   @IsString()
   name: string;
 
@@ -53,7 +53,7 @@ export class CreateOrderAddressDto {
 /**
  * Customer DTO for REST API
  */
-export class CreateOrderCustomerDto {
+export class CreateOrderCustomerDTO {
   @IsString()
   name: string;
 
@@ -70,7 +70,7 @@ export class CreateOrderCustomerDto {
 /**
  * Order item DTO for REST API
  */
-export class CreateOrderItemDto {
+export class CreateOrderItemDTO {
   @IsString()
   sku: string;
 
@@ -97,7 +97,7 @@ export class CreateOrderItemDto {
 /**
  * Payment DTO for REST API
  */
-export class CreateOrderPaymentDto {
+export class CreateOrderPaymentDTO {
   @IsString()
   method: string;
 
@@ -118,8 +118,8 @@ export class CreateOrderPaymentDto {
   dueDate?: string;
 
   @ValidateNested()
-  @Type(() => CreateOrderAddressDto)
-  address: CreateOrderAddressDto;
+  @Type(() => CreateOrderAddressDTO)
+  address: CreateOrderAddressDTO;
 
   @IsNumber()
   @Min(0)
@@ -155,7 +155,7 @@ export class CreateOrderPaymentDto {
 /**
  * Shipping DTO for REST API
  */
-export class CreateOrderShippingDto {
+export class CreateOrderShippingDTO {
   @IsString()
   method: string;
 
@@ -168,8 +168,8 @@ export class CreateOrderShippingDto {
   quotedPrice: number;
 
   @ValidateNested()
-  @Type(() => CreateOrderAddressDto)
-  address: CreateOrderAddressDto;
+  @Type(() => CreateOrderAddressDTO)
+  address: CreateOrderAddressDTO;
 
   @IsOptional()
   @IsString()
@@ -182,7 +182,7 @@ export class CreateOrderShippingDto {
 /**
  * Main create order request DTO
  */
-export class CreateOrderRequestDto {
+export class CreateOrderRequestDTO {
   @IsString()
   externalId: string;
 
@@ -194,23 +194,23 @@ export class CreateOrderRequestDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateOrderItemDto)
-  items: CreateOrderItemDto[];
+  @Type(() => CreateOrderItemDTO)
+  items: CreateOrderItemDTO[];
 
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => CreateOrderShippingDto)
-  shipping: CreateOrderShippingDto;
+  @Type(() => CreateOrderShippingDTO)
+  shipping: CreateOrderShippingDTO;
 
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => CreateOrderCustomerDto)
-  customer: CreateOrderCustomerDto;
+  @Type(() => CreateOrderCustomerDTO)
+  customer: CreateOrderCustomerDTO;
 
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => CreateOrderPaymentDto)
-  payment: CreateOrderPaymentDto;
+  @Type(() => CreateOrderPaymentDTO)
+  payment: CreateOrderPaymentDTO;
 
   @IsString()
   project: string;

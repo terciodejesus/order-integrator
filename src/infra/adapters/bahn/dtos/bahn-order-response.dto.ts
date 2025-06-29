@@ -1,15 +1,6 @@
-import { Type } from 'class-transformer';
-import {
-  IsArray,
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class BahnOrderResponseDto {
+export class BahnOrderResponseDTO {
   /** Order index returned by Bahn */
   @IsNumber()
   orderIndex: number;
@@ -22,27 +13,4 @@ export class BahnOrderResponseDto {
   /** Indicates if the order was successfully created */
   @IsBoolean()
   success: boolean;
-
-  /** Array of errors (only present when success is false) */
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => BahnOrderErrorDto)
-  errors?: BahnOrderErrorDto[];
-}
-
-export class BahnOrderErrorDto {
-  /** Order index from error */
-  @IsNumber()
-  orderIndex: number;
-
-  /** Order number from error */
-  @IsString()
-  @IsNotEmpty()
-  orderNumber: string;
-
-  /** Error message */
-  @IsString()
-  @IsNotEmpty()
-  error: string;
 }

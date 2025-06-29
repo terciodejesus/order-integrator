@@ -1,11 +1,11 @@
 import { Address, Order, OrderItem } from 'src/domain/entities';
 import {
-  BahnOrderRequestAddressDto,
-  BahnOrderRequestCustomerDto,
-  BahnOrderRequestDto,
-  BahnOrderRequestPaymentDto,
-  BahnOrderRequestProductDto,
-  BahnOrderRequestShippingDto,
+  BahnOrderRequestAddressDTO,
+  BahnOrderRequestCustomerDTO,
+  BahnOrderRequestDTO,
+  BahnOrderRequestPaymentDTO,
+  BahnOrderRequestProductDTO,
+  BahnOrderRequestShippingDTO,
 } from '../dtos';
 import {
   BahnOrderGoupCode,
@@ -15,7 +15,7 @@ import {
 } from '../enums';
 
 export class BahnOrderToRequestMapper {
-  static toRequest(order: Order): BahnOrderRequestDto {
+  static toRequest(order: Order): BahnOrderRequestDTO {
     return {
       ecommerceName: 'Integrações API',
       channel: order.channel,
@@ -37,7 +37,7 @@ export class BahnOrderToRequestMapper {
   /**
    * Maps customer information
    */
-  private static mapCustomer(order: Order): BahnOrderRequestCustomerDto {
+  private static mapCustomer(order: Order): BahnOrderRequestCustomerDTO {
     return {
       taxIdentification: order.customer.taxIdentification,
       email: order.customer.email,
@@ -50,7 +50,7 @@ export class BahnOrderToRequestMapper {
   /**
    * Maps address information
    */
-  private static mapAddress(address: Address): BahnOrderRequestAddressDto {
+  private static mapAddress(address: Address): BahnOrderRequestAddressDTO {
     return {
       ibgeCode: '',
       name: address.name,
@@ -72,7 +72,7 @@ export class BahnOrderToRequestMapper {
   /**
    * Maps payment information
    */
-  private static mapPayment(order: Order): BahnOrderRequestPaymentDto {
+  private static mapPayment(order: Order): BahnOrderRequestPaymentDTO {
     return {
       additional: 0,
       address: this.mapAddress(order.payment.address),
@@ -96,7 +96,7 @@ export class BahnOrderToRequestMapper {
   /**
    * Maps shipping information
    */
-  private static mapShipping(order: Order): BahnOrderRequestShippingDto {
+  private static mapShipping(order: Order): BahnOrderRequestShippingDTO {
     return {
       dueDate: order.shipping.deliveryDate,
       method: order.shipping.method,
@@ -108,7 +108,7 @@ export class BahnOrderToRequestMapper {
 
   private static mapOrderItem(
     orderItem: OrderItem,
-  ): BahnOrderRequestProductDto {
+  ): BahnOrderRequestProductDTO {
     return {
       discount: orderItem.discount,
       price: orderItem.price,

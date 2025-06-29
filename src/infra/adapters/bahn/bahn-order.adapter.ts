@@ -15,7 +15,7 @@ import {
   OrderIntegrationResult,
 } from 'src/domain/ports/order-integration.port';
 import { BahnConfig } from './config/bahn.config';
-import { BahnOrderResponseDto } from './dtos/bahn-order-response.dto';
+import { BahnOrderErrorResponseDTO, BahnOrderResponseDTO } from './dtos';
 import { BahnOrderException } from './exceptions/bahn-order.exception';
 import { BahnOrderToRequestMapper } from './mappers/bahn-order-to-request.mapper';
 
@@ -51,7 +51,7 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
       const formattedToken = this.formatBearerToken(this.cachedToken);
       const bahnOrder = BahnOrderToRequestMapper.toRequest(order);
 
-      const response: AxiosResponse<BahnOrderResponseDto[]> =
+      const response: AxiosResponse<BahnOrderResponseDTO[]> =
         await firstValueFrom(
           this.httpService.post(`${this.baseUrl}/order`, [bahnOrder], {
             headers: {
@@ -71,7 +71,9 @@ export class BahnOrderAdapter implements OrderIntegrationPort {
           message: 'Pedido criado com sucesso',
         };
       } else {
-        const errorMessages = response.data[0].errors
+        const errorMessages = (
+          response.data[0] as BahnOrderErrorResponseDTO
+        ).errors
           ?.map((error) => error.error)
           .join(', ');
         this.logger.error(`Erro na criação de pedidos: ${errorMessages}`);

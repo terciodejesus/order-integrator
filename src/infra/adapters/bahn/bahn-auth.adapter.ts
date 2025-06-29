@@ -14,7 +14,7 @@ import {
   UsernamePasswordCredentials,
 } from 'src/domain/ports/authentication.port';
 import { BahnConfig } from './config/bahn.config';
-import { BahnLoginResponseDto } from './dtos/bahn-login-response.dto';
+import { BahnLoginResponseDTO } from './dtos/bahn-login-response.dto';
 import { BahnAuthException } from './exceptions/bahn-auth.exception';
 
 @Injectable()
@@ -33,7 +33,7 @@ export class BahnAuthAdapter implements AuthenticationPort {
     credentials: UsernamePasswordCredentials,
   ): Promise<AuthenticationResult> {
     try {
-      const response: AxiosResponse<BahnLoginResponseDto> =
+      const response: AxiosResponse<BahnLoginResponseDTO> =
         await firstValueFrom(
           this.httpService.post(
             `${this.bahnConfig.baseUrl}/login`,

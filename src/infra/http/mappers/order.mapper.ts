@@ -5,12 +5,12 @@ import type { OrderItem } from '../../../domain/entities/OrderItem';
 import type { Payment } from '../../../domain/entities/Payment';
 import type { Shipping } from '../../../domain/entities/Shipping';
 import type {
-  CreateOrderAddressDto,
-  CreateOrderCustomerDto,
-  CreateOrderItemDto,
-  CreateOrderPaymentDto,
-  CreateOrderRequestDto,
-  CreateOrderShippingDto,
+  CreateOrderAddressDTO,
+  CreateOrderCustomerDTO,
+  CreateOrderItemDTO,
+  CreateOrderPaymentDTO,
+  CreateOrderRequestDTO,
+  CreateOrderShippingDTO,
 } from '../dtos/create-order-request.dto';
 
 /**
@@ -18,11 +18,11 @@ import type {
  */
 export class OrderMapper {
   /**
-   * Converts CreateOrderRequestDto to Order entity
+   * Converts CreateOrderRequestDTO to Order entity
    * @param dto - REST API order request DTO
    * @returns Domain order entity
    */
-  static toDomain(dto: CreateOrderRequestDto): Order {
+  static toDomain(dto: CreateOrderRequestDTO): Order {
     const order: Order = {
       externalId: dto.externalId,
       orderNumber: dto.orderNumber,
@@ -42,7 +42,7 @@ export class OrderMapper {
   /**
    * Maps order item DTO to domain entity
    */
-  private static mapOrderItem(item: CreateOrderItemDto): OrderItem {
+  private static mapOrderItem(item: CreateOrderItemDTO): OrderItem {
     return {
       sku: item.sku,
       name: item.name,
@@ -56,7 +56,7 @@ export class OrderMapper {
   /**
    * Maps customer DTO to domain entity
    */
-  private static mapCustomer(customer: CreateOrderCustomerDto): Customer {
+  private static mapCustomer(customer: CreateOrderCustomerDTO): Customer {
     return {
       name: customer.name,
       email: customer.email,
@@ -68,7 +68,7 @@ export class OrderMapper {
   /**
    * Maps address DTO to domain entity
    */
-  private static mapAddress(address: CreateOrderAddressDto): Address {
+  private static mapAddress(address: CreateOrderAddressDTO): Address {
     return {
       name: address.name,
       street: address.street,
@@ -86,7 +86,7 @@ export class OrderMapper {
   /**
    * Maps payment DTO to domain entity
    */
-  private static mapPayment(payment: CreateOrderPaymentDto): Payment {
+  private static mapPayment(payment: CreateOrderPaymentDTO): Payment {
     return {
       method: payment.method,
       total: payment.total,
@@ -108,7 +108,7 @@ export class OrderMapper {
   /**
    * Maps shipping DTO to domain entity
    */
-  private static mapShipping(shipping: CreateOrderShippingDto): Shipping {
+  private static mapShipping(shipping: CreateOrderShippingDTO): Shipping {
     return {
       method: shipping.method,
       price: shipping.price,

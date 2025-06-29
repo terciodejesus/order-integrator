@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { OrderIntegrationService } from 'src/application/services/order-integration.service';
-import { CreateOrderRequestDto } from '../dtos/create-order-request.dto';
+import { CreateOrderRequestDTO } from '../dtos/create-order-request.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -9,7 +9,7 @@ export class OrdersController {
   ) {}
 
   @Post()
-  async createOrder(@Body() body: CreateOrderRequestDto) {
+  async createOrder(@Body() body: CreateOrderRequestDTO) {
     const result = await this.orderIntegrationService.createOrder(body);
 
     if (result.status === 'success') {

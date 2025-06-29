@@ -10,7 +10,7 @@ import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
 import { Order } from 'src/domain/entities';
 import { AuthenticationPort, StorePort } from 'src/domain/ports';
-import { WebhookRequestDto } from 'src/infra/http/dtos/webhook-request.dto';
+import { WebhookRequestDTO } from 'src/infra/http/dtos/webhook-request.dto';
 import { PrimeConfig } from './config/prime.config';
 import { PrimeStoreException } from './exceptions/prime-store.exception';
 
@@ -48,7 +48,7 @@ export class PrimeStoreAdapter implements StorePort {
         this.cachedApiKey = authResult.apiKey ?? '';
       }
 
-      const webhookDto = this.mapOrderToWebhookDto(order);
+      const webhookDto = this.mapOrderToWebhookDTO(order);
 
       const response = await firstValueFrom(
         this.httpService.post(
@@ -96,7 +96,7 @@ export class PrimeStoreAdapter implements StorePort {
     return apiKey;
   }
 
-  mapOrderToWebhookDto(order: Order): WebhookRequestDto {
+  mapOrderToWebhookDTO(order: Order): WebhookRequestDTO {
     return {
       data: {
         id: order.externalId,
