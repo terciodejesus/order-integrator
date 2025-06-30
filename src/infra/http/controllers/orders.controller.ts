@@ -1,24 +1,36 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
-import { OrderIntegrationService } from 'src/application/services/order-integration.service';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { OrderQueueProducer } from 'src/infra/queue/producers/order-queue.producer';
 import { CreateOrderRequestDTO } from '../dtos/create-order-request.dto';
 
 @Controller('orders')
 export class OrdersController {
+  private readonly logger = new Logger(OrdersController.name);
+
   constructor(
-    private readonly orderIntegrationService: OrderIntegrationService,
+    private readonly orderQueueProducer: OrderQueueProducer,
   ) {}
 
   @Post()
   async createOrder(@Body() body: CreateOrderRequestDTO) {
-    const result = await this.orderIntegrationService.createOrder(body);
-
-    if (result.status === 'success') {
+    try {
+      await this.orderQueueProducer.publishOrder(body);
+      
+      this.logger.log(`Pedido enfileirado: ${body.orderNumber}`);
+      
       return {
-        status: 'success',
-        message: result.message,
+        status: 'queued',
+        message: 'Pedido enfileirado para processamento',
+        orderId: body.externalId,
+        orderNumber: body.orderNumber,
       };
-    } else {
-      throw new BadRequestException(result.message);
+    } catch (error) {
+      this.logger.error(`Erro ao enfileirar pedido ${body.orderNumber}:`, error);
+      
+      return {
+        status: 'error',
+        message: 'Falha ao enfileirar pedido',
+        error: error.message,
+      };
     }
   }
 }

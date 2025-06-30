@@ -36,12 +36,20 @@
 - **Logging**: Sistema estruturado com contexto por classe
 - **Error Handling**: Exceções específicas por domínio
 
+### 6. RabbitMQ Integration ✅ NOVA
+- **Queue System**: Processamento assíncrono de pedidos
+- **Producer**: OrderQueueProducer para enfileirar pedidos
+- **Consumer**: OrderQueueConsumer para processar da fila
+- **Dead Letter**: DeadLetterConsumer para falhas definitivas
+- **Response**: API retorna "queued" imediatamente
+
 ## Trabalho Em Andamento 🔄
 
-### Memory Bank Initialization
-- **Status**: Recém inicializado
-- **Arquivos**: Todos os arquivos core do memory bank criados
-- **Próximo**: Avaliar lacunas e áreas de melhoria
+### RabbitMQ Implementation - Semana 1 ✅ CONCLUÍDA
+- **Status**: Implementação básica concluída
+- **Componentes**: Producer, Consumer, Dead Letter Queue, Configuration
+- **Mudança arquitetural**: Processamento síncrono → assíncrono
+- **Próximo**: Testes da implementação e melhorias (retry logic avançado)
 
 ## Áreas que Precisam de Atenção ⚠️
 
@@ -90,32 +98,34 @@
 
 ## Próximas Ações Prioritárias
 
-### 1. Implementar Testes (Alta Prioridade)
+### 1. Validar e Ajustar RabbitMQ (Alta Prioridade)
 ```typescript
-// Unit tests para OrderIntegrationService
-// Integration tests para BahnOrderAdapter
-// E2E tests para POST /orders
+// Testar fluxo completo de enfileiramento
+// Verificar consumer funcionando corretamente
+// Ajustar configurações se necessário
+// Documentar processo de debugging
 ```
 
-### 2. Documentação da API (Média Prioridade)
+### 2. Retry Logic Avançado (Alta Prioridade)
 ```typescript
-// @ApiTags, @ApiOperation, @ApiResponse decorators
-// Swagger UI endpoint
-// README com exemplos de uso
+// Implementar backoff exponencial (1s, 4s, 16s)
+// Headers customizados para retry count
+// TTL configurável por mensagem
+// Melhorar dead letter handling
 ```
 
-### 3. Health Checks (Média Prioridade)
+### 3. Implementar Testes (Média Prioridade)
 ```typescript
-// GET /health endpoint
-// Verificação de conectividade Bahn/Prime
-// Status de autenticação
+// Unit tests para Producer/Consumer
+// Integration tests com RabbitMQ
+// E2E tests para fluxo assíncrono
 ```
 
-### 4. Melhorar Error Handling (Baixa Prioridade)
+### 4. Documentação da API (Média Prioridade)
 ```typescript
-// Global exception filter
-// Structured error responses
-// Error codes padronizados
+// Atualizar Swagger para resposta "queued"
+// Documentar novo fluxo assíncrono
+// Exemplos de monitoramento RabbitMQ
 ```
 
 ## Configuração de Desenvolvimento

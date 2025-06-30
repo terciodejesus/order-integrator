@@ -75,6 +75,24 @@
 - `src/infra/infra.module.ts`
 - `package.json`, `tsconfig.json`
 
+### 7. RabbitMQ Queue System ✅ NOVO
+**Status**: ✅ Completo
+- [x] Docker Compose setup para RabbitMQ
+- [x] RabbitMQ configuration com tipagem forte
+- [x] OrderQueueProducer implementado
+- [x] OrderQueueConsumer implementado
+- [x] DeadLetterConsumer implementado
+- [x] RabbitMQModule configurado
+- [x] OrdersController adaptado para resposta assíncrona
+- [x] Main.ts configurado para microservices
+- [x] Dependências RabbitMQ instaladas
+
+**Arquivos**:
+- `docker-compose.yml`
+- `src/infra/queue/`: Módulo completo implementado
+- `src/main.ts`: Configurado para microservices
+- `README-RABBITMQ.md`: Documentação completa
+
 ## Funcionalidades Parcialmente Implementadas ⚠️
 
 ### 1. Error Handling Global
@@ -96,16 +114,27 @@
 
 ## Funcionalidades Não Implementadas ❌
 
-### 1. Testing Suite
+### 1. RabbitMQ Advanced Features
+**Status**: ❌ Não implementado
+- [ ] Retry logic com backoff exponencial
+- [ ] Circuit breaker pattern
+- [ ] Dead letter processing avançado
+- [ ] Metrics customizadas
+- [ ] Auto-scaling de consumers
+
+**Estimativa**: 2-3 dias de trabalho
+
+### 2. Testing Suite
 **Status**: ❌ Não implementado
 - [ ] Unit tests para services
 - [ ] Unit tests para adapters  
-- [ ] Integration tests para fluxos completos
-- [ ] E2E tests para API endpoints
+- [ ] Unit tests para Producer/Consumer
+- [ ] Integration tests com RabbitMQ
+- [ ] E2E tests para fluxo assíncrono
 - [ ] Test coverage reports
 - [ ] Mocking de dependências externas
 
-**Estimativa**: 2-3 dias de trabalho
+**Estimativa**: 3-4 dias de trabalho
 
 ### 2. API Documentation
 **Status**: ❌ Não implementado

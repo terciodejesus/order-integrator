@@ -9,12 +9,14 @@ import primeConfig from './adapters/prime/config/prime.config';
 import { PrimeAuthAdapter } from './adapters/prime/prime-auth.adapter';
 import { PrimeStoreAdapter } from './adapters/prime/prime-store.adapter';
 import { OrdersController } from './http/controllers/orders.controller';
+import { RabbitMQModule } from './queue/rabbitmq.module';
 
 @Module({
   imports: [
     HttpModule,
     ConfigModule.forFeature(bahnConfig),
     ConfigModule.forFeature(primeConfig),
+    RabbitMQModule,
   ],
   providers: [
     OrderIntegrationService,
