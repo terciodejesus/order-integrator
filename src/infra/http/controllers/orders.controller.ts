@@ -1,5 +1,5 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
-import { OrderQueueProducer } from 'src/infra/queue/producers/order-queue.producer';
+import { OrderQueueProducer } from 'src/infra/queue/rabbitmq/producers/order-queue.producer';
 import { CreateOrderRequestDTO } from '../dtos/create-order-request.dto';
 
 @Controller('orders')

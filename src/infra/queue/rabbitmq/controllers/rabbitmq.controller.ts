@@ -5,8 +5,8 @@ import { OrdersController } from 'src/infra/http/controllers/orders.controller';
 import { DeadLetterConsumer } from '../consumers/dead-letter.consumer';
 import { OrderQueueConsumer } from '../consumers/order-queue.consumer';
 
-@Controller('events')
-export class EventsController {
+@Controller()
+export class RabbitMQController {
   private readonly logger = new Logger(OrdersController.name);
 
   constructor(
