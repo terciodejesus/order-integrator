@@ -6,17 +6,15 @@ import { CreateOrderRequestDTO } from '../dtos/create-order-request.dto';
 export class OrdersController {
   private readonly logger = new Logger(OrdersController.name);
 
-  constructor(
-    private readonly orderQueueProducer: OrderQueueProducer,
-  ) {}
+  constructor(private readonly orderQueueProducer: OrderQueueProducer) {}
 
   @Post()
-  async createOrder(@Body() body: CreateOrderRequestDTO) {
+  createOrder(@Body() body: CreateOrderRequestDTO) {
     try {
-      await this.orderQueueProducer.publishOrder(body);
-      
+      this.orderQueueProducer.publishOrder(body);
+
       this.logger.log(`Pedido enfileirado: ${body.orderNumber}`);
-      
+
       return {
         status: 'queued',
         message: 'Pedido enfileirado para processamento',
@@ -24,12 +22,15 @@ export class OrdersController {
         orderNumber: body.orderNumber,
       };
     } catch (error) {
-      this.logger.error(`Erro ao enfileirar pedido ${body.orderNumber}:`, error);
-      
+      this.logger.error(
+        `Erro ao enfileirar pedido ${body.orderNumber}:`,
+        error,
+      );
+
       return {
         status: 'error',
         message: 'Falha ao enfileirar pedido',
-        error: error.message,
+        error: (error as Error).message,
       };
     }
   }

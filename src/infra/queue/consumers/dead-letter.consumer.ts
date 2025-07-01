@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Ctx, Payload, RmqContext } from '@nestjs/microservices';
+import { Channel, Message } from 'amqplib';
 import { Order } from 'src/domain/entities';
 
 @Injectable()
@@ -11,17 +12,16 @@ export class DeadLetterConsumer {
    * @param data Pedido que falhou
    * @param context Contexto RabbitMQ
    */
-  @EventPattern('order.dead-letter')
-  async handleDeadLetter(
+  handleDeadLetter(
     @Payload() data: Order & { enqueuedAt: string; correlationId: string },
     @Ctx() context: RmqContext,
-  ): Promise<void> {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
+  ): void {
+    const channel = context.getChannelRef() as Channel;
+    const originalMsg = context.getMessage() as Message;
 
     try {
       const { correlationId, ...order } = data;
-      
+
       this.logger.error(
         `Pedido falhou definitivamente: ${order.orderNumber} (${correlationId})`,
       );
@@ -41,12 +41,12 @@ export class DeadLetterConsumer {
       channel.ack(originalMsg);
     } catch (error) {
       this.logger.error(
-        `Erro ao processar dead letter: ${error.message}`,
-        error.stack,
+        `Erro ao processar dead letter: ${(error as Error).message}`,
+        (error as Error).stack,
       );
-      
+
       // Acknowledge mesmo com erro para evitar loop infinito
       channel.ack(originalMsg);
     }
   }
-} 
+}

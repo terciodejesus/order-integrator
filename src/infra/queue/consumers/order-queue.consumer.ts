@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { Ctx, Payload, RmqContext } from '@nestjs/microservices';
+import { Channel, Message } from 'amqplib';
 import { OrderIntegrationService } from 'src/application/services/order-integration.service';
 import { Order } from 'src/domain/entities';
 
@@ -16,17 +17,15 @@ export class OrderQueueConsumer {
    * @param data Dados do pedido com metadados
    * @param context Contexto RabbitMQ
    */
-  @EventPattern('order.process')
   async handleOrderProcessing(
     @Payload() data: Order & { enqueuedAt: string; correlationId: string },
     @Ctx() context: RmqContext,
   ): Promise<void> {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-    
+    const channel = context.getChannelRef() as Channel;
+    const originalMsg = context.getMessage() as Message;
+    const { correlationId, ...order } = data;
+
     try {
-      const { enqueuedAt, correlationId, ...order } = data;
-      
       this.logger.log(
         `Processando pedido da fila: ${order.orderNumber} (${correlationId})`,
       );
@@ -44,14 +43,14 @@ export class OrderQueueConsumer {
           `Falha no processamento do pedido: ${order.orderNumber} (${correlationId}) - ${result.message}`,
         );
         // Handle retry logic (will be implemented later)
-        await this.handleRetry(order, context, new Error(result.message));
+        this.handleRetry(data, context, new Error(result.message));
       }
     } catch (error) {
       this.logger.error(
-        `Erro no processamento do pedido: ${error.message}`,
-        error.stack,
+        `Erro no processamento do pedido: ${(error as Error).message}`,
+        (error as Error).stack,
       );
-      await this.handleRetry(data, context, error);
+      this.handleRetry(data, context, error as Error);
     }
   }
 
@@ -61,20 +60,20 @@ export class OrderQueueConsumer {
    * @param context Contexto RabbitMQ
    * @param error Erro ocorrido
    */
-  private async handleRetry(
-    order: Order,
+  private handleRetry(
+    order: Order & { enqueuedAt: string; correlationId: string },
     context: RmqContext,
     error: Error,
-  ): Promise<void> {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
+  ): void {
+    const channel = context.getChannelRef() as Channel;
+    const originalMsg = context.getMessage() as Message;
 
     // Por enquanto, apenas rejeita a mensagem (será melhorado com retry logic)
     this.logger.warn(
-      `Rejeitando mensagem do pedido: ${order.orderNumber} - ${error.message}`,
+      `Rejeitando mensagem do pedido: ${order.orderNumber} (${order.correlationId}) - ${error.message}`,
     );
-    
+
     // Reject message and send to dead letter queue
     channel.nack(originalMsg, false, false);
   }
-} 
+}

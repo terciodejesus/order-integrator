@@ -1,8 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { Order } from 'src/domain/entities';
-import { RabbitMQConfig } from '../config/rabbitmq.config';
 
 @Injectable()
 export class OrderQueueProducer {
@@ -11,7 +9,6 @@ export class OrderQueueProducer {
   constructor(
     @Inject('RABBITMQ_SERVICE')
     private readonly client: ClientProxy,
-    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -19,13 +16,11 @@ export class OrderQueueProducer {
    * @param order Pedido a ser processado
    * @returns Promise<void>
    */
-  async publishOrder(order: Order): Promise<void> {
+  publishOrder(order: Order): void {
     try {
-      const rabbitmqConfig = this.configService.get<RabbitMQConfig>('rabbitmq');
-      
       this.logger.log(`Enfileirando pedido: ${order.orderNumber}`);
-      
-      await this.client.emit('order.process', {
+
+      this.client.emit('order.exchange', {
         ...order,
         enqueuedAt: new Date().toISOString(),
         correlationId: this.generateCorrelationId(order.externalId),
@@ -33,8 +28,13 @@ export class OrderQueueProducer {
 
       this.logger.log(`Pedido enfileirado com sucesso: ${order.orderNumber}`);
     } catch (error) {
-      this.logger.error(`Erro ao enfileirar pedido ${order.orderNumber}:`, error);
-      throw new Error(`Falha ao enfileirar pedido: ${error.message}`);
+      this.logger.error(
+        `Erro ao enfileirar pedido ${order.orderNumber}:`,
+        error,
+      );
+      throw new Error(
+        `Falha ao enfileirar pedido: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -47,4 +47,4 @@ export class OrderQueueProducer {
     const timestamp = Date.now();
     return `${externalId}-${timestamp}`;
   }
-} 
+}

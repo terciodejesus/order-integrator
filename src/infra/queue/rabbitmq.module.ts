@@ -1,25 +1,30 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { rabbitmqConfig } from './config/rabbitmq.config';
+import { ApplicationModule } from 'src/application/application.module';
 import { DeadLetterConsumer } from './consumers/dead-letter.consumer';
 import { OrderQueueConsumer } from './consumers/order-queue.consumer';
+import { EventsController } from './controllers/events.controller';
 import { OrderQueueProducer } from './producers/order-queue.producer';
 
 @Module({
   imports: [
-    ConfigModule.forFeature(rabbitmqConfig),
+    ApplicationModule,
     ClientsModule.register([
       {
         name: 'RABBITMQ_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: [process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672'],
+          urls: [
+            process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672',
+          ],
           queue: process.env.RABBITMQ_ORDER_QUEUE || 'order.queue',
+          exchange: process.env.RABBITMQ_EXCHANGE || 'order.exchange',
+          exchangeType: 'topic',
           queueOptions: {
             durable: true,
             arguments: {
-              'x-dead-letter-exchange': process.env.RABBITMQ_EXCHANGE || 'order.exchange',
+              'x-dead-letter-exchange':
+                process.env.RABBITMQ_EXCHANGE || 'order.exchange',
               'x-dead-letter-routing-key': 'order.dead-letter',
             },
           },
@@ -27,15 +32,8 @@ import { OrderQueueProducer } from './producers/order-queue.producer';
       },
     ]),
   ],
-  providers: [
-    OrderQueueProducer,
-    OrderQueueConsumer,
-    DeadLetterConsumer,
-  ],
-  exports: [
-    OrderQueueProducer,
-    OrderQueueConsumer,
-    DeadLetterConsumer,
-  ],
+  providers: [OrderQueueProducer, OrderQueueConsumer, DeadLetterConsumer],
+  exports: [OrderQueueProducer, OrderQueueConsumer, DeadLetterConsumer],
+  controllers: [EventsController],
 })
-export class RabbitMQModule {} 
+export class RabbitMQModule {}
