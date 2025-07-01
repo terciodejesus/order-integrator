@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ApplicationModule } from 'src/application/application.module';
-import { DeadLetterConsumer } from './rabbitmq/consumers/dead-letter.consumer';
-import { OrderQueueConsumer } from './rabbitmq/consumers/order-queue.consumer';
-import { RabbitMQController } from './rabbitmq/controllers/rabbitmq.controller';
-import { OrderQueueProducer } from './rabbitmq/producers/order-queue.producer';
+import { DeadLetterConsumer } from './consumers/dead-letter.consumer';
+import { OrderQueueConsumer } from './consumers/order-queue.consumer';
+import { RabbitMQController } from './controllers/rabbitmq.controller';
+import { OrderQueueProducer } from './producers/order-queue.producer';
 
 @Module({
   imports: [
