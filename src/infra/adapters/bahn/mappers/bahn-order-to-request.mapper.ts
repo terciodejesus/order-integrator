@@ -20,7 +20,7 @@ export class BahnOrderToRequestMapper {
       ecommerceName: 'Integrações API',
       channel: order.channel,
       number: order.orderNumber,
-      purchaseDate: new Date().toISOString(),
+      purchaseDate: order.createdAt,
       sellerName: '',
       brandName: order.payment.brand ?? '',
       warehouseCode: BahnWarehouseCode.PRIME,

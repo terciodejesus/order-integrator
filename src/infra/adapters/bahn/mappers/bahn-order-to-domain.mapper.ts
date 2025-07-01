@@ -41,6 +41,7 @@ export class BahnOrderToDomainMapper {
       additionalFields: bahnOrderDto.ecommerceOrder.orderAdditionalFields,
       customerAdditionalFields:
         bahnOrderDto.ecommerceOrder.customerAdditionalFields,
+      createdAt: bahnOrderDto.purchaseDate,
     };
   }
 

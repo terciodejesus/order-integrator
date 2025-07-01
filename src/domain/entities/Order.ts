@@ -14,4 +14,5 @@ export type Order = {
   project: string;
   additionalFields?: Record<string, string>;
   customerAdditionalFields?: Record<string, string>;
+  createdAt: string;
 };

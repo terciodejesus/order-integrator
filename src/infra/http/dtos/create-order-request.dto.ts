@@ -222,4 +222,7 @@ export class CreateOrderRequestDTO {
   @IsOptional()
   @IsObject()
   customerAdditionalFields?: Record<string, string>;
+
+  @IsDateString()
+  createdAt: string;
 }
