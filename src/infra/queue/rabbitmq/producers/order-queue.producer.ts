@@ -20,7 +20,7 @@ export class OrderQueueProducer {
     try {
       this.logger.log(`Enfileirando pedido: ${order.orderNumber}`);
 
-      this.client.emit('order.exchange', {
+      this.client.emit('order.process', {
         ...order,
         enqueuedAt: new Date().toISOString(),
         correlationId: this.generateCorrelationId(order.externalId),

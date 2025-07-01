@@ -42,38 +42,14 @@ export class OrderQueueConsumer {
         this.logger.error(
           `Falha no processamento do pedido: ${order.orderNumber} (${correlationId}) - ${result.message}`,
         );
-        // Handle retry logic (will be implemented later)
-        this.handleRetry(data, context, new Error(result.message));
+
+        channel.nack(originalMsg, false, false);
       }
     } catch (error) {
       this.logger.error(
         `Erro no processamento do pedido: ${(error as Error).message}`,
         (error as Error).stack,
       );
-      this.handleRetry(data, context, error as Error);
     }
-  }
-
-  /**
-   * Gerencia lógica de retry (implementação básica)
-   * @param order Pedido que falhou
-   * @param context Contexto RabbitMQ
-   * @param error Erro ocorrido
-   */
-  private handleRetry(
-    order: Order & { enqueuedAt: string; correlationId: string },
-    context: RmqContext,
-    error: Error,
-  ): void {
-    const channel = context.getChannelRef() as Channel;
-    const originalMsg = context.getMessage() as Message;
-
-    // Por enquanto, apenas rejeita a mensagem (será melhorado com retry logic)
-    this.logger.warn(
-      `Rejeitando mensagem do pedido: ${order.orderNumber} (${order.correlationId}) - ${error.message}`,
-    );
-
-    // Reject message and send to dead letter queue
-    channel.nack(originalMsg, false, false);
   }
 }

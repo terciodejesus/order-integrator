@@ -14,17 +14,15 @@ import { OrderQueueProducer } from './producers/order-queue.producer';
         name: 'RABBITMQ_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: [
-            process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672',
-          ],
-          queue: process.env.RABBITMQ_ORDER_QUEUE || 'order.queue',
-          exchange: process.env.RABBITMQ_EXCHANGE || 'order.exchange',
+          urls: ['amqp://admin:admin123@localhost:5672'],
+          queue: 'order.queue',
+          exchange: 'order.exchange',
           exchangeType: 'topic',
+          routingKey: 'order.process',
           queueOptions: {
             durable: true,
             arguments: {
-              'x-dead-letter-exchange':
-                process.env.RABBITMQ_EXCHANGE || 'order.exchange',
+              'x-dead-letter-exchange': 'order.dlx.exchange',
               'x-dead-letter-routing-key': 'order.dead-letter',
             },
           },

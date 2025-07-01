@@ -32,10 +32,10 @@ export class DeadLetterConsumer {
       // 3. Enviar alerta para equipe de suporte
       // 4. Integrar com sistema de monitoramento
 
-      // Por enquanto, apenas logamos o erro
-      this.logger.error(
-        `Pedido enviado para dead letter queue: ${JSON.stringify(order)}`,
-      );
+      // // Por enquanto, apenas logamos o erro
+      // this.logger.error(
+      //   `Pedido enviado para dead letter queue: ${JSON.stringify(order)}`,
+      // );
 
       // Acknowledge para remover da dead letter queue
       channel.ack(originalMsg);

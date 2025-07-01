@@ -20,16 +20,31 @@ async function bootstrap() {
       urls: [
         process.env.RABBITMQ_URL || 'amqp://admin:admin123@localhost:5672',
       ],
-      queue: process.env.RABBITMQ_ORDER_QUEUE || 'order.queue',
-      exchange: process.env.RABBITMQ_EXCHANGE || 'order.exchange',
+      queue: 'order.queue',
+      exchange: 'order.exchange',
+      exchangeType: 'topic',
+      routingKey: 'order.process',
       queueOptions: {
         durable: true,
         arguments: {
-          'x-dead-letter-exchange':
-            process.env.RABBITMQ_EXCHANGE || 'order.exchange',
+          'x-dead-letter-exchange': 'order.dlx.exchange',
           'x-dead-letter-routing-key': 'order.dead-letter',
         },
       },
+      prefetchCount: 1,
+    },
+  });
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      noAck: false,
+      urls: ['amqp://admin:admin123@localhost:5672'],
+      exchange: 'order.dlx.exchange',
+      queue: 'order.dead-letter.queue',
+      exchangeType: 'topic',
+      queueOptions: { durable: true },
+      routingKey: 'order.dead-letter',
       prefetchCount: 1,
     },
   });
