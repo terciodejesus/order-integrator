@@ -131,6 +131,32 @@ Tratamento específico por código HTTP:
 - 422: Validação → Retornar detalhes de validação
 - 5xx: Erro do servidor → Retry ou fallback
 
+### 5. Queue-Based Processing (NOVO)
+Processamento assíncrono com RabbitMQ:
+```typescript
+// Producer pattern
+await this.client.emit('order.process', {
+  ...order,
+  enqueuedAt: new Date().toISOString(),
+  correlationId: this.generateCorrelationId(order.externalId),
+});
+
+// Consumer pattern
+@EventPattern('order.process')
+async handleOrderProcessing(@Payload() data: Order, @Ctx() context: RmqContext) {
+  // Process message and acknowledge
+}
+```
+
+### 6. Correlation ID Pattern (NOVO)
+Rastreamento de mensagens através do sistema:
+```typescript
+private generateCorrelationId(externalId: string): string {
+  const timestamp = Date.now();
+  return `${externalId}-${timestamp}`;
+}
+```
+
 ## Module Organization
 
 ### Core Module Structure
