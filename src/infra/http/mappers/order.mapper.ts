@@ -24,6 +24,7 @@ export class OrderMapper {
    */
   static toDomain(dto: CreateOrderRequestDTO): Order {
     const order: Order = {
+      createdAt: dto.createdAt,
       externalId: dto.externalId,
       orderNumber: dto.orderNumber,
       channel: dto.channel,
